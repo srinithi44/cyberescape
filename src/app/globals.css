@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-cinzel: 'Cinzel', serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #020d08;
+  color: #f8fafc;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020d08;
+}
+::-webkit-scrollbar-thumb {
+  background: #059669;
+  border-radius: 3px;
+}
+
+/* Cyber glow utility classes */
+.glow-green {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+}
+.glow-emerald {
+  box-shadow: 0 0 35px rgba(52, 211, 153, 0.7);
+}
+.glow-red {
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+}
+
+/* Glassmorphism terminal styles */
+.cyber-glass {
+  background: rgba(3, 23, 14, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
