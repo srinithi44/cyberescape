@@ -6,6 +6,91 @@ import * as THREE from 'three';
 import { Float, Html } from '@react-three/drei';
 import { Shield, Zap, Terminal, Award, AlertTriangle, Compass, Cpu, Database, Server, Radio, Cog, Lightbulb } from 'lucide-react';
 
+// ── Moving Vehicle on Highway ──
+function MovingVehicle({ startZ, endZ, speed, laneX, color = '#22D3EE' }: {
+  startZ: number;
+  endZ: number;
+  speed: number;
+  laneX: number;
+  color?: string;
+}) {
+  const vehicleRef = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (vehicleRef.current) {
+      const t = state.clock.getElapsedTime() * speed;
+      const dist = Math.abs(startZ - endZ);
+      const z = startZ - (t % dist);
+      vehicleRef.current.position.z = z;
+    }
+  });
+  return (
+    <group ref={vehicleRef} position={[laneX, 0.45, startZ]}>
+      <mesh castShadow>
+        <boxGeometry args={[1.5, 0.8, 3.2]} />
+        <meshStandardMaterial color="#071A2F" roughness={0.2} metalness={0.9} />
+      </mesh>
+      <pointLight position={[0, -0.3, 0]} intensity={1.5} distance={6} color={color} />
+      <mesh position={[0, 0.25, -1.61]}>
+        <planeGeometry args={[1.2, 0.3]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+      <mesh position={[0, 0.2, 1.61]}>
+        <planeGeometry args={[1.2, 0.2]} />
+        <meshBasicMaterial color="#EF4444" />
+      </mesh>
+    </group>
+  );
+}
+
+// ── Futuristic Bus Stop / Bench Shelter ──
+function FuturisticBusStop({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <mesh position={[0, 0.1, 0]} receiveShadow>
+        <boxGeometry args={[4.0, 0.2, 2.0]} />
+        <meshStandardMaterial color="#071A2F" roughness={0.4} />
+      </mesh>
+      <mesh position={[-1.9, 1.5, -0.9]} castShadow>
+        <cylinderGeometry args={[0.08, 0.08, 3.0]} />
+        <meshStandardMaterial color="#0E5AA7" metalness={0.9} />
+      </mesh>
+      <mesh position={[1.9, 1.5, -0.9]} castShadow>
+        <cylinderGeometry args={[0.08, 0.08, 3.0]} />
+        <meshStandardMaterial color="#0E5AA7" metalness={0.9} />
+      </mesh>
+      <mesh position={[0, 1.5, -0.95]} castShadow>
+        <planeGeometry args={[3.8, 3.0]} />
+        <meshStandardMaterial color="#22D3EE" emissive="#22D3EE" emissiveIntensity={0.6} transparent opacity={0.65} />
+      </mesh>
+      <mesh position={[0, 3.0, 0]} castShadow>
+        <boxGeometry args={[4.2, 0.15, 2.2]} />
+        <meshStandardMaterial color="#071A2F" roughness={0.3} metalness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.45, -0.2]} castShadow>
+        <boxGeometry args={[2.5, 0.5, 0.6]} />
+        <meshStandardMaterial color="#0E5AA7" metalness={0.7} />
+      </mesh>
+      <Float speed={1.5} floatIntensity={0.3}>
+        <Html position={[0, 2.2, 0]} center distanceFactor={15}>
+          <div className="px-1.5 py-0.5 rounded border border-cyan-400 bg-cyan-950/80 text-[6px] font-mono font-bold text-cyan-300 tracking-wider whitespace-nowrap animate-pulse">
+            METROPOLIS TRANSIT
+          </div>
+        </Html>
+      </Float>
+      <group position={[0, 0.8, -0.2]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.4, 0.5, 0.4]} />
+          <meshBasicMaterial color="#22D3EE" transparent opacity={0.75} />
+        </mesh>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <sphereGeometry args={[0.18, 8, 8]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 // ── Low-Poly Cyber Mountain ──
 // Overhauled to be a layered, jagged mountain peak with metal structures, glowing conduits, and secondary cliffs
 function CyberMountain({
@@ -951,6 +1036,18 @@ export function WorldEnvironment() {
 
   return (
     <group>
+      {/* ── Moving Vehicles ── */}
+      <MovingVehicle startZ={12} endZ={-40} speed={1.2} laneX={4} color="#22D3EE" />
+      <MovingVehicle startZ={12} endZ={-40} speed={1.8} laneX={-4} color="#F4B942" />
+      <MovingVehicle startZ={-85} endZ={-118} speed={1.4} laneX={3} color="#0E5AA7" />
+      <MovingVehicle startZ={-85} endZ={-118} speed={2.0} laneX={-3} color="#22D3EE" />
+      <MovingVehicle startZ={-175} endZ={-250} speed={1.0} laneX={5} color="#F4B942" />
+      <MovingVehicle startZ={-175} endZ={-250} speed={1.5} laneX={-5} color="#22D3EE" />
+
+      {/* ── Futuristic Bus Stops / NPCs ── */}
+      <FuturisticBusStop position={[-15, 0, -15]} rotationY={Math.PI / 2} />
+      <FuturisticBusStop position={[15, 0, -100]} rotationY={-Math.PI / 2} />
+      <FuturisticBusStop position={[-16, 0, -210]} rotationY={Math.PI / 2} />
       {/* ── 1. SKYBOX DOME, ATMOSPHERE & VOLUME FOG ── */}
       <color attach="background" args={['#020D1A']} />
       <fog attach="fog" args={['#020D1A', 50, 240]} />

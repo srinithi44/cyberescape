@@ -68,7 +68,7 @@ export function GameHUD({ onOpenPlayers }: GameHUDProps) {
           {/* Checkpoint Counter */}
           <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#071A2F]/80 border border-cyan-500/40 text-xs font-mono text-cyan-300">
             <Shield className="w-4 h-4 text-[#F4B942]" />
-            <span>NODE {currentCheckpoint + 1} / 5</span>
+            <span>NODE {currentCheckpoint + 1} / 10</span>
           </div>
 
           {/* Stopwatch */}

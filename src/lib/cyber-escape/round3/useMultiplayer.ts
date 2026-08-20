@@ -151,14 +151,13 @@ export function useMultiplayer() {
     });
 
     // Listen for peer engaging MCQ terminal
-    channel.bind('client-terminal-engaged', (data: { checkpointIdx: number; queueIndex: number }) => {
+    channel.bind('client-terminal-engaged', (data: { checkpointIdx: number }) => {
       console.log(`Pusher: Peer engaged terminal: CP ${data.checkpointIdx}`);
       const store = useGameStore.getState();
       if (store.gameStatus === 'playing') {
         useGameStore.setState({
           currentCheckpoint: data.checkpointIdx,
-          currentQueueIndex: data.queueIndex,
-          activeQuestion: store.mcqQueue[data.queueIndex] || null,
+          activeQuestion: store.mcqQueue[data.checkpointIdx] || null,
           gameStatus: 'question',
         });
       }
@@ -171,7 +170,7 @@ export function useMultiplayer() {
       if (store.gameStatus === 'playing') {
         const challenge = CODING_CHALLENGES[data.challengeIndex];
         useGameStore.setState({
-          currentCheckpoint: data.challengeIndex === 0 ? 3 : 4,
+          currentCheckpoint: data.challengeIndex === 0 ? 8 : 9,
           activeCodingChallenge: challenge,
           gameStatus: 'coding',
         });
@@ -265,7 +264,6 @@ export function useMultiplayer() {
         console.log('Pusher: Dispatching terminal engaged sequence...');
         channelRef.current?.trigger('client-terminal-engaged', {
           checkpointIdx: state.currentCheckpoint,
-          queueIndex: state.currentQueueIndex,
         });
       }
 
@@ -273,7 +271,7 @@ export function useMultiplayer() {
       if (state.gameStatus === 'coding' && prevStatus === 'playing') {
         console.log('Pusher: Dispatching coding engaged sequence...');
         channelRef.current?.trigger('client-coding-engaged', {
-          challengeIndex: state.currentCheckpoint === 3 ? 0 : 1,
+          challengeIndex: state.currentCheckpoint === 8 ? 0 : 1,
         });
       }
 

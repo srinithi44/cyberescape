@@ -68,7 +68,7 @@ export function QuestionTerminal({ checkpointIndex = 0 }: { checkpointIndex?: nu
     if (distSq < radius * radius) {
       soundEngine.playTerminalActivate(gameState.soundEnabled);
       gameState.setCurrentCheckpoint(checkpointIndex);
-      const currentQ = gameState.mcqQueue[gameState.currentQueueIndex];
+      const currentQ = gameState.mcqQueue[checkpointIndex];
       gameState.setActiveQuestion(currentQ || null);
       gameState.setGameStatus('question');
     }

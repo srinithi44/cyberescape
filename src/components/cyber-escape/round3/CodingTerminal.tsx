@@ -14,7 +14,7 @@ export function CodingTerminal({ challengeIndex = 0 }: { challengeIndex?: number
   const pointLightRef = useRef<THREE.PointLight>(null);
   const [isNear, setIsNear] = useState(false);
 
-  const checkpointIndex = challengeIndex === 0 ? 3 : 4;
+  const checkpointIndex = challengeIndex === 0 ? 8 : 9;
   const cpInfo = CHECKPOINTS[checkpointIndex];
   const pos = cpInfo.position;
 

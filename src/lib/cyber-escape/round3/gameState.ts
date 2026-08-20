@@ -199,6 +199,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     0: 'none',
     1: 'none',
     2: 'none',
+    3: 'none',
+    4: 'none',
+    5: 'none',
   },
 
   // MCQ Engine & Adaptation
@@ -211,9 +214,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   usedQuestionIds: [],
   wrongCategories: [],
   checkpointTargetCounts: {
-    0: 5, // 5 Computer Networks MCQs
-    1: 5, // 5 CS Fundamentals MCQs
-    2: 5  // 5 DBMS MCQs
+    0: 1,
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,
+    5: 1,
+    6: 1,
+    7: 1,
   },
   questionsAnsweredAtCurrentCheckpoint: 0,
 
@@ -267,16 +275,19 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   resetGame: () => {
-    // Partition base questions into the starting queue
-    const cnQuestions = MCQ_POOL.filter(q => q.category === 'COMPUTER_NETWORKS');
     const csQuestions = MCQ_POOL.filter(q => q.category === 'CS_FUNDAMENTALS');
     const dbQuestions = MCQ_POOL.filter(q => q.category === 'DBMS');
+    const cnQuestions = MCQ_POOL.filter(q => q.category === 'COMPUTER_NETWORKS');
 
-    // Slice 5 of each to create initial queue of 15 questions
     const initialQueue = [
-      ...cnQuestions.slice(0, 5),
-      ...csQuestions.slice(0, 5),
-      ...dbQuestions.slice(0, 5),
+      csQuestions[0], // CP 1 (CS)
+      csQuestions[1], // CP 1-D (CS)
+      dbQuestions[0], // CP 2 (DBMS)
+      cnQuestions[0], // CP 3 (CN)
+      dbQuestions[1], // CP 2-D (DBMS)
+      csQuestions[2], // CP 4 (CS)
+      dbQuestions[2], // CP 5 (DBMS)
+      cnQuestions[1], // CP 6 (CN)
     ];
     const initialUsedIds = initialQueue.map(q => q.id);
 
@@ -288,14 +299,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentCheckpoint: 0,
       activeQuestion: null,
       checkpointAnswers: {},
-      routeBranches: { 0: 'none', 1: 'none', 2: 'none' },
+      routeBranches: { 0: 'none', 1: 'none', 2: 'none', 3: 'none', 4: 'none', 5: 'none' },
       isMapOpen: false,
       timerMs: 0,
       isTimerRunning: true,
       checkpointTargetCounts: {
-        0: 5,
-        1: 5,
-        2: 5
+        0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1
       },
 
       mcqQueue: initialQueue,
@@ -314,16 +323,19 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   initGame: () => {
-    // Partition base questions into the starting queue
-    const cnQuestions = MCQ_POOL.filter(q => q.category === 'COMPUTER_NETWORKS');
     const csQuestions = MCQ_POOL.filter(q => q.category === 'CS_FUNDAMENTALS');
     const dbQuestions = MCQ_POOL.filter(q => q.category === 'DBMS');
+    const cnQuestions = MCQ_POOL.filter(q => q.category === 'COMPUTER_NETWORKS');
 
-    // Slice 5 of each to create initial queue of 15 questions
     const initialQueue = [
-      ...cnQuestions.slice(0, 5),
-      ...csQuestions.slice(0, 5),
-      ...dbQuestions.slice(0, 5),
+      csQuestions[0], // CP 1 (CS)
+      csQuestions[1], // CP 1-D (CS)
+      dbQuestions[0], // CP 2 (DBMS)
+      cnQuestions[0], // CP 3 (CN)
+      dbQuestions[1], // CP 2-D (DBMS)
+      csQuestions[2], // CP 4 (CS)
+      dbQuestions[2], // CP 5 (DBMS)
+      cnQuestions[1], // CP 6 (CN)
     ];
     const initialUsedIds = initialQueue.map(q => q.id);
 
@@ -335,14 +347,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentCheckpoint: 0,
       activeQuestion: null,
       checkpointAnswers: {},
-      routeBranches: { 0: 'none', 1: 'none', 2: 'none' },
+      routeBranches: { 0: 'none', 1: 'none', 2: 'none', 3: 'none', 4: 'none', 5: 'none' },
       isMapOpen: false,
       timerMs: 0,
       isTimerRunning: false,
       checkpointTargetCounts: {
-        0: 5,
-        1: 5,
-        2: 5
+        0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1
       },
 
       mcqQueue: initialQueue,
@@ -365,97 +375,67 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   submitAnswer: (checkpointIdx, optionIdx) => {
     const question = get().activeQuestion;
-    if (!question) return { isCorrect: false, isCheckpointComplete: false };
+    if (!question) return { isCorrect: false, isCheckpointComplete: true };
 
     const isCorrect = optionIdx === question.correctAnswer;
-    const nextQueueIndex = get().currentQueueIndex + 1;
     const nextTotalServed = get().totalQuestionsServed + 1;
 
-    // Apply basic updates first
-    set((state) => ({
-      totalQuestionsServed: nextTotalServed,
-      currentQueueIndex: nextQueueIndex,
-      questionsAnsweredAtCurrentCheckpoint: state.questionsAnsweredAtCurrentCheckpoint + 1
-    }));
+    set((state) => {
+      const nextCorrect = isCorrect ? state.correctAnswers + 1 : state.correctAnswers;
+      const nextWrong = !isCorrect ? state.wrongAnswers + 1 : state.wrongAnswers;
+      const nextExtra = !isCorrect ? state.extraQuestionsAdded + 1 : state.extraQuestionsAdded;
 
-    if (isCorrect) {
-      const nextCorrect = get().correctAnswers + 1;
-      set({ correctAnswers: nextCorrect });
-    } else {
-      const nextWrong = get().wrongAnswers + 1;
-      set((state) => ({
-        wrongAnswers: nextWrong,
-        wrongCategories: [...state.wrongCategories, question.category],
-        checkpointAnswers: {
-          ...state.checkpointAnswers,
-          [checkpointIdx]: { selectedIndex: optionIdx, isCorrect: false },
-        },
-        routeBranches: {
-          ...state.routeBranches,
-          [checkpointIdx]: 'detour',
-        }
-      }));
+      // Apply time penalty of 20 seconds for any wrong answer
+      const timePenalty = isCorrect ? 0 : 20000;
 
-      // Adaptive question addition logic (capped at 30 total queue size)
-      const currentQueueSize = get().mcqQueue.length;
-      if (currentQueueSize < 30) {
-        // Find unused question from same category, or any category if none left
-        let penaltyQuestion = MCQ_POOL.find(
-          (q) => q.category === question.category && !get().usedQuestionIds.includes(q.id)
-        );
-        if (!penaltyQuestion) {
-          penaltyQuestion = MCQ_POOL.find(
-            (q) => !get().usedQuestionIds.includes(q.id)
-          );
-        }
+      // Determine route branches for all checkpoints
+      let updatedBranches = { ...state.routeBranches };
+      
+      // Map checkpointIdx to the respective gate index:
+      // CP 1 (0) -> Gate 0
+      // CP 2 (2) -> Gate 1
+      // CP 3 (3) -> Gate 2
+      // CP 4 (5) -> Gate 3
+      // CP 5 (6) -> Gate 4
+      // CP 6 (7) -> Gate 5
+      let gateIdx = -1;
+      if (checkpointIdx === 0) gateIdx = 0;
+      else if (checkpointIdx === 2) gateIdx = 1;
+      else if (checkpointIdx === 3) gateIdx = 2;
+      else if (checkpointIdx === 5) gateIdx = 3;
+      else if (checkpointIdx === 6) gateIdx = 4;
+      else if (checkpointIdx === 7) gateIdx = 5;
 
-        if (penaltyQuestion) {
-          // Insert the penalty question into the queue right after current index
-          const newQueue = [...get().mcqQueue];
-          newQueue.splice(get().currentQueueIndex, 0, penaltyQuestion);
-
-          // Update target count of the CURRENT checkpoint to include this penalty question
-          const currentTarget = get().checkpointTargetCounts[checkpointIdx] || 5;
-
-          set((state) => ({
-            mcqQueue: newQueue,
-            usedQuestionIds: [...state.usedQuestionIds, penaltyQuestion!.id],
-            extraQuestionsAdded: state.extraQuestionsAdded + 1,
-            checkpointTargetCounts: {
-              ...state.checkpointTargetCounts,
-              [checkpointIdx]: currentTarget + 1
-            }
-          }));
-        }
+      if (gateIdx !== -1) {
+        updatedBranches[gateIdx] = isCorrect ? 'shortcut' : 'detour';
       }
-    }
 
-    // Evaluate Checkpoint completion
-    const targetCount = get().checkpointTargetCounts[checkpointIdx] || 5;
-    const answered = get().questionsAnsweredAtCurrentCheckpoint;
+      const updatedAnswers = {
+        ...state.checkpointAnswers,
+        [checkpointIdx]: { selectedIndex: optionIdx, isCorrect },
+      };
 
-    if (answered >= targetCount) {
-      // Mark checkpoint terminal as completed
-      set((state) => {
-        const currentBranch = state.routeBranches[checkpointIdx];
-        const branch = currentBranch === 'none' ? 'shortcut' : currentBranch;
+      // Calculate new queue index based on total solved MCQ checkpoints
+      // MCQ checkpoints are 0, 1, 2, 3, 4, 5, 6, 7
+      const solvedMcqs = Object.keys(updatedAnswers).filter(
+        (key) => Number(key) <= 7 && updatedAnswers[Number(key)]
+      ).length;
 
-        return {
-          checkpointAnswers: {
-            ...state.checkpointAnswers,
-            [checkpointIdx]: { selectedIndex: optionIdx, isCorrect: isCorrect },
-          },
-          routeBranches: {
-            ...state.routeBranches,
-            [checkpointIdx]: branch,
-          },
-          questionsAnsweredAtCurrentCheckpoint: 0 // reset counter for this checkpoint
-        };
-      });
-      return { isCorrect, isCheckpointComplete: true };
-    } else {
-      return { isCorrect, isCheckpointComplete: false };
-    }
+      return {
+        correctAnswers: nextCorrect,
+        wrongAnswers: nextWrong,
+        extraQuestionsAdded: nextExtra,
+        totalQuestionsServed: nextTotalServed,
+        checkpointAnswers: updatedAnswers,
+        routeBranches: updatedBranches,
+        timerMs: state.timerMs + timePenalty,
+        currentQueueIndex: solvedMcqs,
+        activeQuestion: null,
+        gameStatus: 'playing',
+      };
+    });
+
+    return { isCorrect, isCheckpointComplete: true };
   },
 
   // Leaderboard

@@ -75,7 +75,7 @@ export function PlayerController() {
       const route2 = state.routeBranches[1] || 'none';
       const coding1Solved = !!state.codingSolved['CODE-01'];
       const coding2Solved = !!state.codingSolved['CODE-02'];
-      const clamped = checkWorldBoundaries(nextX, nextZ, route1, route2, coding1Solved, coding2Solved);
+      const clamped = checkWorldBoundaries(nextX, nextZ, route1, route2, coding1Solved, coding2Solved, state.checkpointAnswers);
 
       state.setPlayerPosition([clamped.x, 0.5, clamped.z]);
 

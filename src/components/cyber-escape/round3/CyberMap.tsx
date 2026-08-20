@@ -8,8 +8,15 @@ export function CyberMap() {
   const isMapOpen = useGameStore((state) => state.isMapOpen);
   const setIsMapOpen = useGameStore((state) => state.setIsMapOpen);
   const playerPos = useGameStore((state) => state.playerPosition);
-  const route1 = useGameStore((state) => state.routeBranches[0] || 'none');
-  const route2 = useGameStore((state) => state.routeBranches[1] || 'none');
+  
+  const route0 = useGameStore((state) => state.routeBranches[0] || 'none');
+  const route1 = useGameStore((state) => state.routeBranches[1] || 'none');
+  const route2 = useGameStore((state) => state.routeBranches[2] || 'none');
+  const route3 = useGameStore((state) => state.routeBranches[3] || 'none');
+  const route4 = useGameStore((state) => state.routeBranches[4] || 'none');
+  const route5 = useGameStore((state) => state.routeBranches[5] || 'none');
+  
+  const checkpointAnswers = useGameStore((state) => state.checkpointAnswers);
 
   if (!isMapOpen) return null;
 
@@ -19,12 +26,13 @@ export function CyberMap() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md">
+      <div className="fixed right-4 top-28 bottom-24 w-80 z-30 pointer-events-none">
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, rotateX: 10 }}
-          animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-          exit={{ opacity: 0, scale: 0.94, rotateX: 10 }}
-          className="relative w-full max-w-4xl h-[88vh] p-6 rounded-3xl border border-cyan-500/60 shadow-[0_0_80px_rgba(34,211,238,0.45)] flex flex-col justify-between text-white bg-[#071A2F]/95"
+          initial={{ opacity: 0, x: 50, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 50, scale: 0.95 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 120 }}
+          className="pointer-events-auto relative w-full h-full p-4 rounded-2xl border border-cyan-500/50 shadow-[0_0_30px_rgba(34,211,238,0.25)] flex flex-col justify-between text-white bg-[#071A2F]/90 backdrop-blur-md"
         >
           {/* Scanline Overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(34,211,238,0.04)_50%)] bg-[length:100%_4px] pointer-events-none" />
@@ -91,62 +99,49 @@ export function CyberMap() {
               </defs>
 
               {/* Region Grid Separators */}
-              <line x1="0" y1="78" x2="100" y2="78" stroke="#083a3f" strokeWidth="0.25" strokeDasharray="3,3" />
-              <line x1="0" y1="55" x2="100" y2="55" stroke="#083a3f" strokeWidth="0.25" strokeDasharray="3,3" />
-              <line x1="0" y1="30" x2="100" y2="30" stroke="#083a3f" strokeWidth="0.25" strokeDasharray="3,3" />
+              <line x1="0" y1="80" x2="100" y2="80" stroke="#083a3f" strokeWidth="0.2" strokeDasharray="3,3" />
+              <line x1="0" y1="60" x2="100" y2="60" stroke="#083a3f" strokeWidth="0.2" strokeDasharray="3,3" />
+              <line x1="0" y1="40" x2="100" y2="40" stroke="#083a3f" strokeWidth="0.2" strokeDasharray="3,3" />
+              <line x1="0" y1="20" x2="100" y2="20" stroke="#083a3f" strokeWidth="0.2" strokeDasharray="3,3" />
 
-              {/* ── ENERGY RIVERS (GLOWING) ── */}
-              {/* River 1 (Cyan, Y = 68) */}
-              <path d="M 0 68 Q 25 66, 50 68 T 100 68" fill="none" stroke="#0E5AA7" strokeWidth="2.0" opacity="0.3" />
-              <path d="M 0 68 Q 25 66, 50 68 T 100 68" fill="none" stroke="#22D3EE" strokeWidth="0.8" filter="url(#glow-cyan)" />
+              {/* ── HIGHWAY PATHS ── */}
+              {/* Start (Y=90) to Checkpoint 1 (Y=82) */}
+              <line x1="50" y1="90" x2="50" y2="82" stroke="#0E5AA7" strokeWidth="2.0" />
+              <line x1="50" y1="90" x2="50" y2="82" stroke="#22D3EE" strokeWidth="0.6" filter="url(#glow-cyan)" />
 
-              {/* River 2 (Cyan-Blue, Y = 43) */}
-              <path d="M 0 43 Q 25 45, 50 43 T 100 43" fill="none" stroke="#0E5AA7" strokeWidth="2.0" opacity="0.3" />
-              <path d="M 0 43 Q 25 45, 50 43 T 100 43" fill="none" stroke="#22D3EE" strokeWidth="0.8" filter="url(#glow-cyan)" />
-
-              {/* ── HIGHWAY PATHS (GLOWING) ── */}
-              {/* Segment 1: Start to Checkpoint 1 */}
-              <line x1="50" y1="90" x2="50" y2="78" stroke="#0E5AA7" strokeWidth="2.2" />
-              <line x1="50" y1="90" x2="50" y2="78" stroke="#22D3EE" strokeWidth="0.8" filter="url(#glow-cyan)" />
-
-              {/* Checkpoint 1 Fork Branches */}
-              {/* Shortcut 1 (Straight, X=50) */}
+              {/* Fork 1: Shortcut 1 (straight, Y=82 to 72) */}
               <line
-                x1="50"
-                y1="78"
-                x2="50"
-                y2="55"
-                stroke={route1 === 'shortcut' ? '#22D3EE' : '#071A2F'}
-                strokeWidth={route1 === 'shortcut' ? '2.2' : '1.2'}
-                filter={route1 === 'shortcut' ? 'url(#glow-cyan)' : 'none'}
+                x1="50" y1="82" x2="50" y2="72"
+                stroke={route0 === 'shortcut' ? '#22D3EE' : '#071A2F'}
+                strokeWidth={route0 === 'shortcut' ? '2.0' : '1.0'}
+                filter={route0 === 'shortcut' ? 'url(#glow-cyan)' : 'none'}
               />
-              {/* Detour 1 (Curves Right, X=75) */}
+              {/* Fork 1: Detour 1 (curving right, Y=82 to 72) */}
               <path
-                d="M 50 78 C 76 78, 76 55, 50 55"
+                d="M 50 82 C 65 82, 65 72, 50 72"
                 fill="none"
-                stroke={route1 === 'detour' ? '#F4B942' : '#071A2F'}
-                strokeWidth={route1 === 'detour' ? '2.0' : '1.0'}
-                strokeDasharray={route1 === 'detour' ? 'none' : '1.5,1.5'}
-                filter={route1 === 'detour' ? 'url(#glow-orange)' : 'none'}
+                stroke={route0 === 'detour' ? '#F4B942' : '#071A2F'}
+                strokeWidth={route0 === 'detour' ? '2.0' : '1.0'}
+                strokeDasharray={route0 === 'detour' ? 'none' : '1.5,1.5'}
+                filter={route0 === 'detour' ? 'url(#glow-orange)' : 'none'}
               />
 
-              {/* Segment 2: CP1/CP2 to Checkpoint 2 (X=50, Y=55) */}
-              <line x1="50" y1="55" x2="50" y2="52" stroke="#0E5AA7" strokeWidth="2.2" />
+              {/* Segment 2: Fork 1 output (Y=72) to CP 2 (Y=62) */}
+              <line x1="50" y1="72" x2="50" y2="62" stroke="#0E5AA7" strokeWidth="2.0" />
 
-              {/* Checkpoint 2 Fork Branches */}
-              {/* Shortcut 2 (Straight, X=50) */}
+              {/* Segment 3: CP 2 (Y=62) to CP 3 (Y=56) */}
+              <line x1="50" y1="62" x2="50" y2="56" stroke="#0E5AA7" strokeWidth="2.0" />
+
+              {/* Fork 2: Shortcut 2 (straight, Y=56 to 40) */}
               <line
-                x1="50"
-                y1="52"
-                x2="50"
-                y2="30"
+                x1="50" y1="56" x2="50" y2="40"
                 stroke={route2 === 'shortcut' ? '#22D3EE' : '#071A2F'}
-                strokeWidth={route2 === 'shortcut' ? '2.2' : '1.2'}
+                strokeWidth={route2 === 'shortcut' ? '2.0' : '1.0'}
                 filter={route2 === 'shortcut' ? 'url(#glow-cyan)' : 'none'}
               />
-              {/* Detour 2 (Curves Left, X=25) */}
+              {/* Fork 2: Detour 2 (curving left, Y=56 to 40) */}
               <path
-                d="M 50 52 C 24 52, 24 30, 50 30"
+                d="M 50 56 C 35 56, 35 40, 50 40"
                 fill="none"
                 stroke={route2 === 'detour' ? '#F4B942' : '#071A2F'}
                 strokeWidth={route2 === 'detour' ? '2.0' : '1.0'}
@@ -154,84 +149,133 @@ export function CyberMap() {
                 filter={route2 === 'detour' ? 'url(#glow-orange)' : 'none'}
               />
 
-              {/* Segment 3: Checkpoint 3 to Final Portal */}
-              <line x1="50" y1="30" x2="50" y2="10" stroke="#0E5AA7" strokeWidth="2.4" />
-              <line x1="50" y1="30" x2="50" y2="10" stroke="#22D3EE" strokeWidth="0.8" filter="url(#glow-cyan)" />
+              {/* Segment 4: Fork 2 output (Y=40) to CP 5 (Y=32) */}
+              <line x1="50" y1="40" x2="50" y2="32" stroke="#0E5AA7" strokeWidth="2.0" />
+
+              {/* Segment 5: CP 5 (Y=32) to CP 6 (Y=24) */}
+              <line x1="50" y1="32" x2="50" y2="24" stroke="#0E5AA7" strokeWidth="2.0" />
+
+              {/* Segment 6: CP 6 (Y=24) to Coding 1 (Y=18) */}
+              <line x1="50" y1="24" x2="50" y2="18" stroke="#0E5AA7" strokeWidth="2.0" />
+
+              {/* Segment 7: Coding 1 to Coding 2 (Y=13) */}
+              <line x1="50" y1="18" x2="50" y2="13" stroke="#0E5AA7" strokeWidth="2.0" />
+
+              {/* Segment 8: Coding 2 to Portal (Y=8) */}
+              <line x1="50" y1="13" x2="50" y2="8" stroke="#0E5AA7" strokeWidth="2.0" />
+              <line x1="50" y1="13" x2="50" y2="8" stroke="#22D3EE" strokeWidth="0.6" filter="url(#glow-cyan)" />
             </svg>
 
             {/* ── DISTRICT LABELS ── */}
-            <div className="absolute top-[82%] left-4 text-[8px] font-mono text-cyan-400/60 uppercase">District 01: Cyber Precinct</div>
-            <div className="absolute top-[58%] left-4 text-[8px] font-mono text-cyan-400/60 uppercase">District 02: Network Grid</div>
-            <div className="absolute top-[33%] left-4 text-[8px] font-mono text-cyan-400/60 uppercase">District 03: Data Vaults</div>
-            <div className="absolute top-[12%] left-4 text-[8px] font-mono text-cyan-400/60 uppercase">District 04: Quantum Portal</div>
+            <div className="absolute top-[84%] left-4 text-[7px] font-mono text-cyan-400/50 uppercase">District 01: Cyber Precinct</div>
+            <div className="absolute top-[66%] left-4 text-[7px] font-mono text-cyan-400/50 uppercase">District 02: City Grid</div>
+            <div className="absolute top-[46%] left-4 text-[7px] font-mono text-cyan-400/50 uppercase">District 03: Data Vaults</div>
+            <div className="absolute top-[26%] left-4 text-[7px] font-mono text-cyan-400/50 uppercase">District 04: AI Core</div>
 
             {/* ── LANDMARK NODES ── */}
-            {/* Cyber Lab (Left, Y=84) */}
-            <div className="absolute top-[83%] left-[16%] flex flex-col items-center">
-              <div className="w-5 h-5 rounded bg-[#071A2F] border border-cyan-500/50 flex items-center justify-center text-cyan-400 text-[8px] shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                <Cpu className="w-3 h-3" />
-              </div>
-              <span className="text-[7px] text-cyan-300/60 scale-90 mt-0.5">LAB-01</span>
-            </div>
-            {/* Cyber Tower (Right, Y=81) */}
-            <div className="absolute top-[80%] left-[80%] flex flex-col items-center">
-              <div className="w-5 h-5 rounded bg-[#071A2F] border border-cyan-500/50 flex items-center justify-center text-cyan-400 text-[8px] shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                <Landmark className="w-3 h-3" />
-              </div>
-              <span className="text-[7px] text-cyan-300/60 scale-90 mt-0.5">TOWER</span>
-            </div>
-            {/* Network Tower (Right, Y=50) */}
-            <div className="absolute top-[49%] left-[81%] flex flex-col items-center">
-              <div className="w-5 h-5 rounded bg-[#071A2F] border border-cyan-500/50 flex items-center justify-center text-cyan-400 text-[8px] shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                <Navigation className="w-3 h-3" />
-              </div>
-              <span className="text-[7px] text-cyan-300/60 scale-90 mt-0.5">NET-CTR</span>
-            </div>
-            {/* Database Vault (Left, Y=26) */}
-            <div className="absolute top-[25%] left-[15%] flex flex-col items-center">
-              <div className="w-5 h-5 rounded bg-[#071A2F] border border-cyan-500/50 flex items-center justify-center text-cyan-400 text-[8px] shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                <Database className="w-3 h-3" />
-              </div>
-              <span className="text-[7px] text-cyan-300/60 scale-90 mt-0.5">VAULT</span>
-            </div>
-
-            {/* ── PHYSICAL LANDMARK NODES ── */}
             {/* Start Node */}
             <div className="absolute top-[90%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className="w-4 h-4 rounded-full bg-cyan-900 border border-white flex items-center justify-center text-[7px] font-bold">
+              <div className="w-3.5 h-3.5 rounded-full bg-cyan-900 border border-white flex items-center justify-center text-[7px] font-bold">
                 S
               </div>
             </div>
 
-            {/* Checkpoint 1 Node */}
-            <div className="absolute top-[78%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[8px] font-bold ${
-                route1 !== 'none' ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_10px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+            {/* CP 1 Node */}
+            <div className="absolute top-[82%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                checkpointAnswers[0] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
               }`}>
                 CP1
               </div>
             </div>
 
-            {/* Checkpoint 2 Node */}
-            <div className="absolute top-[52%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[8px] font-bold ${
-                route2 !== 'none' ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_10px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+            {/* Detour 1-D Node (X=60, Y=77) */}
+            {route0 === 'detour' && (
+              <div className="absolute top-[77%] left-[60%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                  checkpointAnswers[1] ? 'bg-[#071A2F] border-amber-400 text-amber-400 shadow-[0_0_8px_#F4B942]' : 'bg-black border-amber-600 text-amber-300'
+                }`}>
+                  1D
+                </div>
+              </div>
+            )}
+
+            {/* CP 2 Node */}
+            <div className="absolute top-[62%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                checkpointAnswers[2] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
               }`}>
                 CP2
               </div>
             </div>
 
-            {/* Checkpoint 3 Node */}
-            <div className="absolute top-[30%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[8px] font-bold bg-black border-cyan-600 text-cyan-300`}>
+            {/* CP 3 Node */}
+            <div className="absolute top-[56%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                checkpointAnswers[3] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+              }`}>
                 CP3
               </div>
             </div>
 
+            {/* Detour 2-D Node (X=40, Y=48) */}
+            {route2 === 'detour' && (
+              <div className="absolute top-[48%] left-[40%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                  checkpointAnswers[4] ? 'bg-[#071A2F] border-amber-400 text-amber-400 shadow-[0_0_8px_#F4B942]' : 'bg-black border-amber-600 text-amber-300'
+                }`}>
+                  2D
+                </div>
+              </div>
+            )}
+
+            {/* CP 4 Node (X=50, Y=48) */}
+            {route2 === 'shortcut' && (
+              <div className="absolute top-[48%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                  checkpointAnswers[5] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+                }`}>
+                  CP4
+                </div>
+              </div>
+            )}
+
+            {/* CP 5 Node */}
+            <div className="absolute top-[32%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                checkpointAnswers[6] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+              }`}>
+                CP5
+              </div>
+            </div>
+
+            {/* CP 6 Node */}
+            <div className="absolute top-[24%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                checkpointAnswers[7] ? 'bg-[#071A2F] border-cyan-400 text-cyan-400 shadow-[0_0_8px_#22D3EE]' : 'bg-black border-cyan-600 text-cyan-300'
+              }`}>
+                CP6
+              </div>
+            </div>
+
+            {/* Coding Challenge 1 Node */}
+            <div className="absolute top-[18%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className="w-5 h-5 rounded bg-black border border-cyan-600 flex items-center justify-center text-[7px] font-bold">
+                C1
+              </div>
+            </div>
+
+            {/* Coding Challenge 2 Node */}
+            <div className="absolute top-[13%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className="w-5 h-5 rounded bg-black border border-cyan-600 flex items-center justify-center text-[7px] font-bold">
+                C2
+              </div>
+            </div>
+
             {/* Portal Destination Node */}
-            <div className="absolute top-[10%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className="w-7 h-7 rounded-full bg-[#071A2F] border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_#22D3EE] animate-pulse">
-                <Award className="w-3.5 h-3.5" />
+            <div className="absolute top-[8%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className="w-6 h-6 rounded-full bg-[#071A2F] border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_#22D3EE] animate-pulse">
+                <Award className="w-3 h-3" />
               </div>
             </div>
 
@@ -245,22 +289,22 @@ export function CyberMap() {
               animate={{ scale: [0.94, 1.14, 0.94] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <div className="w-5 h-5 rounded-full bg-cyan-400 border-2 border-white shadow-[0_0_20px_#22D3EE] flex items-center justify-center">
-                <MapPin className="w-3 h-3 text-black" />
+              <div className="w-4.5 h-4.5 rounded-full bg-cyan-400 border-2 border-white shadow-[0_0_15px_#22D3EE] flex items-center justify-center">
+                <MapPin className="w-2.5 h-2.5 text-black" />
               </div>
-              <span className="px-1.5 py-0.5 rounded bg-black/90 border border-cyan-400 text-[8px] font-bold text-cyan-300 tracking-wider">
+              <span className="px-1 py-0.2 rounded bg-black/90 border border-cyan-400 text-[6px] font-bold text-cyan-300 tracking-wider">
                 LOKI
               </span>
             </motion.div>
           </div>
 
           {/* Footer controls & spatial status readout */}
-          <div className="flex items-center justify-between text-[9px] font-mono text-cyan-400 pt-2 border-t border-cyan-800/40 relative z-10">
+          <div className="flex items-center justify-between text-[8px] font-mono text-cyan-400 pt-2 border-t border-cyan-800/40 relative z-10">
             <span className="flex items-center gap-1">
               <Activity className="w-3 h-3 text-cyan-400 animate-pulse" />
-              PRESS [M] OR CLOSE TO RESUME GAMEPLAY
+              PRESS [M] OR CLOSE TO HIDE MAP
             </span>
-            <span>TELEMETRY: Z = {Math.round(playerPos[2])}m // X = {Math.round(playerPos[0])}m</span>
+            <span>Z={Math.round(playerPos[2])}m // X={Math.round(playerPos[0])}m</span>
           </div>
         </motion.div>
       </div>
