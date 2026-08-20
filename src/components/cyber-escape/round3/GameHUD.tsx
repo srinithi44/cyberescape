@@ -35,50 +35,49 @@ export function GameHUD({ onOpenPlayers }: GameHUDProps) {
   const progressPercent = Math.round(Math.min(100, Math.max(0, ((5 - zPos) / 245) * 100)));
 
   return (
-    <div className="fixed inset-0 z-40 pointer-events-none p-4 sm:p-6 flex flex-col justify-between select-none">
+    <div className="fixed inset-0 z-40 pointer-events-none p-2 sm:p-6 flex flex-col justify-between select-none">
       {/* Top Bar HUD */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full pointer-events-auto gap-4">
+      <div className="flex flex-row items-center justify-between w-full pointer-events-auto gap-2">
         {/* Top-Left: Game Title Badge */}
-        <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#071A2F]/80 backdrop-blur-md border border-[#22D3EE]/40 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+        <div className="flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 backdrop-blur-md border border-[#22D3EE]/40 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
           <div className="relative">
-            <Compass className="w-5 h-5 text-cyan-400 animate-spin" style={{ animationDuration: '16s' }} />
-            <div className="absolute inset-0 w-5 h-5 rounded-full border border-cyan-400/30 animate-ping" />
+            <Compass className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-cyan-400 animate-spin" style={{ animationDuration: '16s' }} />
           </div>
           <div>
-            <span className="text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest block leading-tight">
-              CYBER ESCAPE // ROUND 3
+            <span className="text-[7px] sm:text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest block leading-tight">
+              CYBER ESCAPE
             </span>
-            <span className="text-[11px] font-black text-white font-mono tracking-wider uppercase">
-              NODE QUANTUM ESCAPE
+            <span className="text-[9px] sm:text-[11px] font-black text-white font-mono tracking-wider uppercase block leading-none">
+              R3
             </span>
           </div>
         </div>
 
         {/* Top-Right Metrics Panel */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-1.5 sm:gap-3 justify-end">
           {/* Room / Players Button */}
           <button
             onClick={onOpenPlayers}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-[#071A2F]/80 border border-cyan-500/50 hover:border-cyan-400 text-xs font-mono font-bold text-cyan-300 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(6,180,212,0.25)] active:scale-95"
+            className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 border border-cyan-500/50 hover:border-cyan-400 text-[10px] sm:text-xs font-mono font-bold text-cyan-300 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(6,180,212,0.25)] active:scale-95"
           >
-            <Users className="w-4 h-4 text-cyan-400" />
-            <span>ROOM</span>
+            <Users className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">ROOM</span>
           </button>
 
           {/* Checkpoint Counter */}
-          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#071A2F]/80 border border-cyan-500/40 text-xs font-mono text-cyan-300">
-            <Shield className="w-4 h-4 text-[#F4B942]" />
-            <span>NODE {currentCheckpoint + 1} / 10</span>
+          <div className="flex items-center gap-1 sm:gap-2.5 px-2 py-1.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 border border-cyan-500/40 text-[10px] sm:text-xs font-mono text-cyan-300">
+            <Shield className="w-3.5 h-3.5 text-[#F4B942]" />
+            <span>{currentCheckpoint + 1}/10</span>
           </div>
 
           {/* Stopwatch */}
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#071A2F]/80 border border-[#22D3EE]/50 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-            <Clock className="w-4 h-4 text-cyan-400 animate-pulse" />
+          <div className="flex items-center gap-1 sm:gap-2.5 px-2 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 border border-[#22D3EE]/50 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
             <div className="flex flex-col">
-              <span className="text-[8px] font-mono text-cyan-400/80 uppercase tracking-widest block leading-tight">
+              <span className="text-[7px] font-mono text-cyan-400/80 uppercase tracking-widest hidden sm:block leading-tight">
                 ELAPSED TIME
               </span>
-              <span className="text-sm sm:text-base font-mono font-bold text-white tracking-wider">
+              <span className="text-[10px] sm:text-base font-mono font-bold text-white tracking-wider">
                 {formatTimer(timerMs)}
               </span>
             </div>
@@ -87,24 +86,24 @@ export function GameHUD({ onOpenPlayers }: GameHUDProps) {
           {/* Tactical Map Trigger */}
           <button
             onClick={toggleMap}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-[#071A2F]/80 border border-cyan-500/50 hover:border-cyan-400 text-xs font-mono font-bold text-cyan-300 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(6,180,212,0.3)] active:scale-95"
+            className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 border border-cyan-500/50 hover:border-cyan-400 text-[10px] sm:text-xs font-mono font-bold text-cyan-300 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(6,180,212,0.3)] active:scale-95"
           >
-            <Map className="w-4 h-4 text-cyan-400" />
+            <Map className="w-3.5 h-3.5 text-cyan-400" />
             <span className="hidden sm:inline">MAP [M]</span>
           </button>
 
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
-            className="p-2.5 rounded-2xl bg-[#071A2F]/80 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all cursor-pointer active:scale-95"
+            className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#071A2F]/80 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all cursor-pointer active:scale-95"
           >
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-cyan-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-500" />}
           </button>
         </div>
       </div>
 
       {/* Middle side: MCQ Stat summary panel */}
-      <div className="absolute top-28 left-4 pointer-events-auto flex flex-col gap-2">
+      <div className="absolute top-28 left-4 pointer-events-auto hidden sm:flex flex-col gap-2">
         <div className="px-4 py-3 rounded-2xl bg-[#071A2F]/90 border border-cyan-500/30 flex flex-col gap-2 text-[10px] font-mono shadow-[0_0_20px_rgba(34,211,238,0.1)] w-48 text-slate-300">
           <div className="flex items-center gap-1.5 border-b border-cyan-950 pb-1.5 mb-1 text-cyan-400 font-bold uppercase">
             <BookOpen className="w-3.5 h-3.5" />

@@ -57,11 +57,11 @@ export function VirtualJoystick() {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="relative w-32 h-32 rounded-full bg-emerald-950/40 border-2 border-emerald-500/40 backdrop-blur-md flex items-center justify-center touch-none select-none"
+        className="relative w-32 h-32 rounded-full bg-cyan-950/40 border-2 border-cyan-500/40 backdrop-blur-md flex items-center justify-center touch-none select-none"
       >
         {/* Joystick Stick Handle */}
         <div
-          className="w-12 h-12 rounded-full bg-emerald-400 border-2 border-white shadow-[0_0_15px_#34D399] transition-transform duration-75"
+          className="w-12 h-12 rounded-full bg-cyan-400 border-2 border-white shadow-[0_0_15px_#22D3EE] transition-transform duration-75"
           style={{
             transform: `translate(${stickPos.x}px, ${stickPos.y}px)`,
           }}

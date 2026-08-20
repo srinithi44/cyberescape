@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Float, Html } from '@react-three/drei';
 import { Shield, Zap, Terminal, Award, AlertTriangle, Compass, Cpu, Database, Server, Radio, Cog, Lightbulb } from 'lucide-react';
+import { useGameStore } from '@/lib/cyber-escape/round3/gameState';
 
 // ── Moving Vehicle on Highway ──
 function MovingVehicle({ startZ, endZ, speed, laneX, color = '#22D3EE' }: {
@@ -871,7 +872,7 @@ function FloatingMapPin({
 
       {/* Floating HTML Badge Panel */}
       <Float speed={2.5} rotationIntensity={0} floatIntensity={0.8} floatingRange={[0, 0.4]}>
-        <Html position={[0, 6.2, 0]} center distanceFactor={28}>
+        <Html position={[0, 2.8, 0]} center distanceFactor={22} zIndexRange={[0, 10]}>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-cyan-400/60 shadow-[0_0_20px_rgba(34,211,238,0.6)] select-none text-white whitespace-nowrap">
             <div className={`p-1 rounded-full ${color} ${borderColor} border text-white`}>
               <Icon className="w-3.5 h-3.5" />
@@ -937,6 +938,7 @@ function FloatingParticleField() {
 
 // ── MAIN ENVIRONMENT SCENE ──
 export function WorldEnvironment() {
+  const playerZ = useGameStore((state) => state.playerPosition[2]);
   // Procedurally generate a detailed terrain mesh with valleys, side hills, mountain peaks, and riverbeds
   const terrainGeometry = useMemo(() => {
     const geo = new THREE.PlaneGeometry(380, 480, 100, 100);
@@ -1276,12 +1278,14 @@ export function WorldEnvironment() {
           <planeGeometry args={[11, 2.0]} />
           <meshBasicMaterial color="#22D3EE" />
         </mesh>
-        <Html position={[0, 10.4, 0.06]} center distanceFactor={22}>
-          <div className="flex flex-col items-center select-none text-white whitespace-nowrap">
-            <span className="text-[14px] font-mono font-black tracking-widest text-black">CYBER ESCAPE</span>
-            <span className="text-[7px] font-mono font-bold text-cyan-950 uppercase tracking-wider">ROUND 3 // QUANTUM GATEWAY</span>
-          </div>
-        </Html>
+        {playerZ > -5.0 && (
+          <Html position={[0, 10.4, 0.06]} center distanceFactor={22} zIndexRange={[0, 10]}>
+            <div className="flex flex-col items-center select-none text-white whitespace-nowrap">
+              <span className="text-[14px] font-mono font-black tracking-widest text-black">CYBER ESCAPE</span>
+              <span className="text-[7px] font-mono font-bold text-cyan-950 uppercase tracking-wider">ROUND 3 // QUANTUM GATEWAY</span>
+            </div>
+          </Html>
+        )}
       </group>
     </group>
   );
