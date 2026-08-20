@@ -11,6 +11,7 @@ import { VirtualJoystick } from '@/components/cyber-escape/round3/VirtualJoystic
 import { PlayersPanel } from '@/components/cyber-escape/round3/PlayersPanel';
 import { RoomSelectionUI } from '@/components/cyber-escape/round3/RoomSelectionUI';
 import { CodingUI } from '@/components/cyber-escape/round3/CodingUI';
+import { useMultiplayer } from '@/lib/cyber-escape/round3/useMultiplayer';
 
 // Dynamic import of 3D R3F Canvas to prevent SSR canvas issues
 const CanvasContainer = dynamic(
@@ -22,6 +23,7 @@ const CanvasContainer = dynamic(
 );
 
 export default function Round3Page() {
+  useMultiplayer();
   const [isPlayersOpen, setIsPlayersOpen] = useState(false);
 
   return (

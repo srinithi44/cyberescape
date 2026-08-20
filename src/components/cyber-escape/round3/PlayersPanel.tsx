@@ -13,6 +13,7 @@ export function PlayersPanel({ onClose }: PlayersPanelProps) {
   const roomCode = useGameStore((state) => state.roomCode);
   const displayName = useGameStore((state) => state.displayName);
   const connectionStatus = useGameStore((state) => state.connectionStatus);
+  const connectedPlayers = useGameStore((state) => state.connectedPlayers);
   const soundEnabled = useGameStore((state) => state.soundEnabled);
 
   return (
@@ -75,40 +76,72 @@ export function PlayersPanel({ onClose }: PlayersPanelProps) {
               {/* Connected Players list */}
               <div>
                 <span className="text-[10px] font-mono font-bold text-slate-400 block tracking-widest uppercase mb-3">
-                  ONLINE CLIENTS (1)
+                  ONLINE CLIENTS ({connectedPlayers.length})
                 </span>
                 
                 <div className="space-y-2">
-                  <div className="px-4 py-3 rounded-xl border border-[#22D3EE]/30 bg-cyan-950/20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-cyan-950 border border-cyan-500 flex items-center justify-center text-[9px] font-bold text-[#22D3EE]">
-                        P1
+                  {connectedPlayers.map((p, idx) => {
+                    const isMe = p.name === displayName;
+                    return (
+                      <div
+                        key={p.id}
+                        className={`px-4 py-3 rounded-xl border ${
+                          isMe ? 'border-[#22D3EE]/30 bg-cyan-950/20' : 'border-slate-800 bg-slate-900/40'
+                        } flex items-center justify-between`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold ${
+                              isMe
+                                ? 'bg-cyan-950 border border-cyan-500 text-[#22D3EE]'
+                                : 'bg-slate-850 border border-slate-700 text-slate-400'
+                            }`}
+                          >
+                            P{idx + 1}
+                          </div>
+                          <span className="text-xs font-mono font-bold text-white">{p.name}</span>
+                        </div>
+                        {isMe ? (
+                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold">
+                            YOU (LOKI)
+                          </span>
+                        ) : (
+                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-slate-700 text-slate-500 uppercase font-bold">
+                            CADET
+                          </span>
+                        )}
                       </div>
-                      <span className="text-xs font-mono font-bold text-white">{displayName}</span>
-                    </div>
-                    <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold">
-                      YOU (LOKI)
-                    </span>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            {/* Pending alert warnings */}
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-950/10 text-[10px] leading-relaxed text-amber-300 font-mono flex gap-2">
-                <ShieldAlert className="w-4 h-4 flex-shrink-0 text-[#F4B942]" />
-                <div>
-                  <span className="font-bold text-[#F4B942] block mb-1">REAL-TIME NOTICE:</span>
-                  Multiplayer synchronization requires backend/realtime integration. Other connected players will not render in the 3D world until a WebSocket endpoint is linked.
+            {/* Dynamic Status notices */}
+            <div className="space-y-4 pt-6">
+              {process.env.NEXT_PUBLIC_PUSHER_APP_KEY && connectionStatus === 'CONNECTED' ? (
+                <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-950/10 text-[10px] leading-relaxed text-emerald-350 font-mono flex gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-bold text-emerald-450 block mb-1">TUNNEL ONLINE:</span>
+                    Real-time multiplayer synchronization active. Other cadet avatars will render live in the 3D grid.
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-950/10 text-[10px] leading-relaxed text-amber-300 font-mono flex gap-2">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0 text-[#F4B942]" />
+                  <div>
+                    <span className="font-bold text-[#F4B942] block mb-1">LOCAL SIMULATION:</span>
+                    Pusher credentials not configured. Running in local simulation mode. Open multiple tabs with the same room code to test flows on this device.
+                  </div>
+                </div>
+              )}
 
               <div className="p-3.5 rounded-xl border border-[#22D3EE]/20 bg-[#0E5AA7]/10 text-[10px] leading-relaxed text-cyan-300 font-mono flex gap-2">
                 <Info className="w-4 h-4 flex-shrink-0" />
                 <div>
                   <span className="font-bold block mb-1">LEADERBOARD TUNNEL:</span>
-                  You can register multiple competitive runs in the same Room Code locally by replaying with different names on this device.
+                  All cadets in the active session code will compete on the same leaderboard. Check progress at the final portal.
                 </div>
               </div>
             </div>

@@ -27,14 +27,33 @@ export interface LeaderboardEntry {
   completedAt: number;
 }
 
+export interface ConnectedPlayer {
+  id: string;
+  name: string;
+}
+
+export interface RemotePlayer {
+  id: string;
+  name: string;
+  position: [number, number, number];
+  rotation: number;
+  isMoving: boolean;
+}
+
 interface GameState {
   // Multiplayer Room State
   roomCode: string;
   displayName: string;
   connectionStatus: ConnectionState;
-  connectedPlayers: string[];
+  connectedPlayers: ConnectedPlayer[];
+  otherPlayers: Record<string, RemotePlayer>;
   joinRoom: (roomCode: string, name: string) => void;
   leaveRoom: () => void;
+  setConnectedPlayers: (players: ConnectedPlayer[]) => void;
+  setOtherPlayers: (players: Record<string, RemotePlayer>) => void;
+  updateOtherPlayer: (id: string, updates: Partial<Omit<RemotePlayer, 'id'>>) => void;
+  removeOtherPlayer: (id: string) => void;
+  setConnectionStatus: (status: ConnectionState) => void;
 
   // Gameplay status
   gameStatus: 'room_selection' | 'lobby' | 'loading' | 'playing' | 'question' | 'coding' | 'completed';
@@ -110,6 +129,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   displayName: '',
   connectionStatus: 'DISCONNECTED',
   connectedPlayers: [],
+  otherPlayers: {},
   joinRoom: (roomCode, name) => {
     set({
       roomCode: roomCode.trim().toUpperCase(),
@@ -117,14 +137,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       connectionStatus: 'CONNECTING'
     });
 
-    // Simulate premium real-time connection delay
-    setTimeout(() => {
-      set((state) => ({
-        connectionStatus: 'CONNECTED',
-        connectedPlayers: [state.displayName],
-        gameStatus: 'lobby'
-      }));
-    }, 1200);
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
+    if (!pusherKey) {
+      console.warn('Pusher App Key not found. Falling back to local multiplayer simulation.');
+      // Simulate premium real-time connection delay
+      setTimeout(() => {
+        set((state) => ({
+          connectionStatus: 'CONNECTED',
+          connectedPlayers: [{ id: 'local_player', name: state.displayName }],
+          gameStatus: 'lobby'
+        }));
+      }, 1200);
+    }
   },
   leaveRoom: () => {
     set({
@@ -132,9 +156,28 @@ export const useGameStore = create<GameState>((set, get) => ({
       displayName: '',
       connectionStatus: 'DISCONNECTED',
       connectedPlayers: [],
+      otherPlayers: {},
       gameStatus: 'room_selection'
     });
   },
+  setConnectedPlayers: (players) => set({ connectedPlayers: players }),
+  setOtherPlayers: (players) => set({ otherPlayers: players }),
+  updateOtherPlayer: (id, updates) => set((state) => {
+    const existing = state.otherPlayers[id];
+    if (!existing) return state;
+    return {
+      otherPlayers: {
+        ...state.otherPlayers,
+        [id]: { ...existing, ...updates }
+      }
+    };
+  }),
+  removeOtherPlayer: (id) => set((state) => {
+    const next = { ...state.otherPlayers };
+    delete next[id];
+    return { otherPlayers: next };
+  }),
+  setConnectionStatus: (status) => set({ connectionStatus: status }),
 
   // Gameplay status
   gameStatus: 'room_selection',

@@ -2,6 +2,7 @@
 
 import { WorldEnvironment } from './WorldEnvironment';
 import { Player } from './Player';
+import { OtherPlayers } from './OtherPlayers';
 import { PlayerController } from './PlayerController';
 import { CameraController } from './CameraController';
 import { QuestionTerminal } from './QuestionTerminal';
@@ -17,6 +18,7 @@ export function GameScene() {
 
       <WorldEnvironment />
       <Player />
+      <OtherPlayers />
 
       {/* Physical Branch Gates */}
       <PhysicalGates />

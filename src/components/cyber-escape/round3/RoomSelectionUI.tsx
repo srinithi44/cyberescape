@@ -13,6 +13,7 @@ export function RoomSelectionUI() {
   const roomCode = useGameStore((state) => state.roomCode);
   const joinRoom = useGameStore((state) => state.joinRoom);
   const connectionStatus = useGameStore((state) => state.connectionStatus);
+  const connectedPlayers = useGameStore((state) => state.connectedPlayers);
   const soundEnabled = useGameStore((state) => state.soundEnabled);
   const initGame = useGameStore((state) => state.initGame);
 
@@ -38,6 +39,8 @@ export function RoomSelectionUI() {
     setError('');
     joinRoom(room, name);
   };
+
+  const isHost = connectedPlayers.length === 0 || connectedPlayers[0]?.name === displayName;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#071A2F] text-white select-none">
@@ -178,35 +181,64 @@ export function RoomSelectionUI() {
             </div>
 
             {/* Connected players list */}
-            <div className="w-full space-y-2 mb-8 text-left">
+            <div className="w-full space-y-2 mb-8 text-left max-h-[160px] overflow-y-auto pr-1">
               <span className="text-[10px] font-mono font-bold text-slate-400 block tracking-widest uppercase mb-1">
-                ONLINE CLIENTS (1)
+                ONLINE CLIENTS ({connectedPlayers.length})
               </span>
               
-              <div className="px-4 py-3 rounded-xl border border-[#22D3EE]/30 bg-cyan-950/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-cyan-950 border border-cyan-500 flex items-center justify-center text-[9px] font-bold text-[#22D3EE]">
-                    P1
+              {connectedPlayers.map((p, idx) => {
+                const isMe = p.name === displayName;
+                return (
+                  <div
+                    key={p.id}
+                    className={`px-4 py-3 rounded-xl border ${
+                      isMe ? 'border-[#22D3EE]/30 bg-cyan-950/20' : 'border-slate-800 bg-slate-900/40'
+                    } flex items-center justify-between`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold ${
+                          isMe
+                            ? 'bg-cyan-950 border border-cyan-500 text-[#22D3EE]'
+                            : 'bg-slate-850 border border-slate-700 text-slate-400'
+                        }`}
+                      >
+                        P{idx + 1}
+                      </div>
+                      <span className="text-xs font-mono font-bold text-white">{p.name}</span>
+                    </div>
+                    {isMe ? (
+                      <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold">
+                        YOU (LOKI)
+                      </span>
+                    ) : (
+                      <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-slate-700 text-slate-500 uppercase font-bold">
+                        CADET
+                      </span>
+                    )}
                   </div>
-                  <span className="text-xs font-mono font-bold text-white">{displayName}</span>
-                </div>
-                <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold">
-                  YOU (LOKI)
-                </span>
-              </div>
+                );
+              })}
             </div>
 
-            {/* Start button */}
-            <button
-              onClick={() => {
-                soundEngine.playClick(soundEnabled);
-                initGame();
-              }}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#F4B942] text-black hover:brightness-110 active:scale-[0.98] transition-all font-mono font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(244,185,66,0.4)]"
-            >
-              START MISSION
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {/* Start button / waiting indicators */}
+            {isHost ? (
+              <button
+                onClick={() => {
+                  soundEngine.playClick(soundEnabled);
+                  initGame();
+                }}
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#F4B942] text-black hover:brightness-110 active:scale-[0.98] transition-all font-mono font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(244,185,66,0.4)]"
+              >
+                START MISSION
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <div className="w-full py-4 rounded-xl border border-cyan-800/40 bg-cyan-950/20 text-[#22D3EE] font-mono font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 cursor-not-allowed select-none">
+                <Radio className="w-4 h-4 animate-pulse text-[#F4B942]" />
+                WAITING FOR HOST TO LAUNCH...
+              </div>
+            )}
           </div>
         )}
       </motion.div>
