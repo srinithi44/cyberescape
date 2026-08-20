@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Pusher, { PresenceChannel } from 'pusher-js';
 import { useGameStore, RouteBranch, LeaderboardEntry } from './gameState';
+import { CODING_CHALLENGES } from './questions';
 
 export function useMultiplayer() {
   const roomCode = useGameStore((state) => state.roomCode);
@@ -129,6 +130,9 @@ export function useMultiplayer() {
           ...state.routeBranches,
           [data.checkpointIdx]: data.branch,
         },
+        // Automatically close the question modal if it was open for this checkpoint
+        gameStatus: state.gameStatus === 'question' && state.currentCheckpoint === data.checkpointIdx ? 'playing' : state.gameStatus,
+        activeQuestion: state.gameStatus === 'question' && state.currentCheckpoint === data.checkpointIdx ? null : state.activeQuestion,
       }));
     });
 
@@ -140,7 +144,38 @@ export function useMultiplayer() {
           ...state.codingSolved,
           [data.challengeId]: true,
         },
+        // Automatically close coding modal if it was open for this challenge
+        gameStatus: state.gameStatus === 'coding' ? 'playing' : state.gameStatus,
+        activeCodingChallenge: state.gameStatus === 'coding' ? null : state.activeCodingChallenge,
       }));
+    });
+
+    // Listen for peer engaging MCQ terminal
+    channel.bind('client-terminal-engaged', (data: { checkpointIdx: number; queueIndex: number }) => {
+      console.log(`Pusher: Peer engaged terminal: CP ${data.checkpointIdx}`);
+      const store = useGameStore.getState();
+      if (store.gameStatus === 'playing') {
+        useGameStore.setState({
+          currentCheckpoint: data.checkpointIdx,
+          currentQueueIndex: data.queueIndex,
+          activeQuestion: store.mcqQueue[data.queueIndex] || null,
+          gameStatus: 'question',
+        });
+      }
+    });
+
+    // Listen for peer engaging coding terminal
+    channel.bind('client-coding-engaged', (data: { challengeIndex: number }) => {
+      console.log(`Pusher: Peer engaged coding terminal: Challenge ${data.challengeIndex}`);
+      const store = useGameStore.getState();
+      if (store.gameStatus === 'playing') {
+        const challenge = CODING_CHALLENGES[data.challengeIndex];
+        useGameStore.setState({
+          currentCheckpoint: data.challengeIndex === 0 ? 3 : 4,
+          activeCodingChallenge: challenge,
+          gameStatus: 'coding',
+        });
+      }
     });
 
     // Synchronize peer completions on the leaderboard
@@ -224,6 +259,24 @@ export function useMultiplayer() {
         console.log('Pusher: Dispatching game start sequence...');
         channelRef.current?.trigger('client-game-started', {});
       }
+
+      // 3.1.1 Engage MCQ Terminal
+      if (state.gameStatus === 'question' && prevStatus === 'playing') {
+        console.log('Pusher: Dispatching terminal engaged sequence...');
+        channelRef.current?.trigger('client-terminal-engaged', {
+          checkpointIdx: state.currentCheckpoint,
+          queueIndex: state.currentQueueIndex,
+        });
+      }
+
+      // 3.1.2 Engage Coding Terminal
+      if (state.gameStatus === 'coding' && prevStatus === 'playing') {
+        console.log('Pusher: Dispatching coding engaged sequence...');
+        channelRef.current?.trigger('client-coding-engaged', {
+          challengeIndex: state.currentCheckpoint === 3 ? 0 : 1,
+        });
+      }
+
       prevStatus = state.gameStatus;
 
       // 3.2 MCQ Terminal Finished
