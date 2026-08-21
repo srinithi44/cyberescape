@@ -430,8 +430,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         routeBranches: updatedBranches,
         timerMs: state.timerMs + timePenalty,
         currentQueueIndex: solvedMcqs,
-        activeQuestion: null,
-        gameStatus: 'playing',
       };
     });
 

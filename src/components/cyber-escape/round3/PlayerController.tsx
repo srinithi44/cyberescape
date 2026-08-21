@@ -72,7 +72,7 @@ export function PlayerController() {
 
       // Apply world boundary collisions & branch route gating
       const route1 = state.routeBranches[0] || 'none';
-      const route2 = state.routeBranches[1] || 'none';
+      const route2 = state.routeBranches[2] || 'none';
       const coding1Solved = !!state.codingSolved['CODE-01'];
       const coding2Solved = !!state.codingSolved['CODE-02'];
       const clamped = checkWorldBoundaries(nextX, nextZ, route1, route2, coding1Solved, coding2Solved, state.checkpointAnswers);

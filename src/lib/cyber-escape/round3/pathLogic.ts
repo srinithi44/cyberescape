@@ -126,107 +126,87 @@ export function checkWorldBoundaries(
   let clampedX = x;
   let clampedZ = Math.min(5, Math.max(-250, z));
 
-  // 1. Start area to Checkpoint 1 (Z: 5 to -30)
+  // 1. Enforce sequential checkpoint gates globally to prevent lag/tunneling bypasses
+  // Checkpoint 1 (Index 0) at Z = -30
+  if (!checkpointAnswers[0] && clampedZ < -30) {
+    clampedZ = -30;
+  }
+  // Detour 1 (Index 1) at Z = -60 (Gated at Z = -65)
+  if (routeBranch1 === 'detour' && !checkpointAnswers[1] && clampedZ < -65) {
+    clampedZ = -65;
+  }
+  // Checkpoint 2 (Index 2) at Z = -90
+  if (checkpointAnswers[0] && !checkpointAnswers[2] && clampedZ < -90) {
+    clampedZ = -90;
+  }
+  // Checkpoint 3 (Index 3) at Z = -105
+  if (checkpointAnswers[2] && !checkpointAnswers[3] && clampedZ < -105) {
+    clampedZ = -105;
+  }
+  // Detour 2 (Index 4) at Z = -150 (Gated at Z = -155)
+  if (routeBranch2 === 'detour' && !checkpointAnswers[4] && clampedZ < -155) {
+    clampedZ = -155;
+  }
+  // Shortcut 2 (Index 5) at Z = -150 (Gated at Z = -155)
+  if (routeBranch2 === 'shortcut' && !checkpointAnswers[5] && clampedZ < -155) {
+    clampedZ = -155;
+  }
+  // Checkpoint 5 (Index 6) at Z = -180
+  if ((checkpointAnswers[4] || checkpointAnswers[5]) && !checkpointAnswers[6] && clampedZ < -180) {
+    clampedZ = -180;
+  }
+  // Checkpoint 6 (Index 7) at Z = -200
+  if (checkpointAnswers[6] && !checkpointAnswers[7] && clampedZ < -200) {
+    clampedZ = -200;
+  }
+  // Coding Challenge 1 (Index 8) at Z = -215
+  if (checkpointAnswers[7] && !coding1Solved && clampedZ < -215) {
+    clampedZ = -215;
+  }
+  // Coding Challenge 2 (Index 9) at Z = -230
+  if (coding1Solved && !coding2Solved && clampedZ < -230) {
+    clampedZ = -230;
+  }
+
+  // 2. Enforce X road boundaries based on clamped Z position
   if (clampedZ > -30) {
     clampedX = Math.max(-12, Math.min(12, clampedX));
-  }
-  // Gated at Checkpoint 1 (Z = -30)
-  else if (clampedZ <= -30 && clampedZ > -38) {
+  } else if (clampedZ <= -30 && clampedZ > -38) {
     clampedX = Math.max(-8, Math.min(8, clampedX));
-    if (!checkpointAnswers[0] && clampedZ < -30) {
-      clampedZ = -30;
-    }
-  }
-  // 2. Fork 1 Area (Z: -38 to -85)
-  else if (clampedZ <= -38 && clampedZ > -85) {
+  } else if (clampedZ <= -38 && clampedZ > -85) {
     if (routeBranch1 === 'shortcut') {
       clampedX = Math.max(-6, Math.min(6, clampedX));
     } else if (routeBranch1 === 'detour') {
       clampedX = Math.max(12, Math.min(24, clampedX));
-      // Detour checkpoint 1-D (Index 1) is at Z = -60. Gate past Z = -65 if not solved.
-      if (!checkpointAnswers[1] && clampedZ < -65) {
-        clampedZ = -65;
-      }
     } else {
       clampedX = Math.max(-8, Math.min(8, clampedX));
-      clampedZ = -38;
     }
-  }
-  // 3. Network District to Checkpoint 2 (Z: -85 to -90)
-  else if (clampedZ <= -85 && clampedZ > -90) {
+  } else if (clampedZ <= -85 && clampedZ > -90) {
     clampedX = Math.max(-12, Math.min(12, clampedX));
-  }
-  // Gated at Checkpoint 2 (Z = -90)
-  else if (clampedZ <= -90 && clampedZ > -100) {
+  } else if (clampedZ <= -90 && clampedZ > -100) {
     clampedX = Math.max(-8, Math.min(8, clampedX));
-    if (!checkpointAnswers[2] && clampedZ < -90) {
-      clampedZ = -90;
-    }
-  }
-  // 4. Highway 2 to Checkpoint 3 (Z: -100 to -105)
-  else if (clampedZ <= -100 && clampedZ > -105) {
+  } else if (clampedZ <= -100 && clampedZ > -105) {
     clampedX = Math.max(-12, Math.min(12, clampedX));
-  }
-  // Gated at Checkpoint 3 (Z = -105)
-  else if (clampedZ <= -105 && clampedZ > -118) {
+  } else if (clampedZ <= -105 && clampedZ > -118) {
     clampedX = Math.max(-8, Math.min(8, clampedX));
-    if (!checkpointAnswers[3] && clampedZ < -105) {
-      clampedZ = -105;
-    }
-  }
-  // 5. Fork 2 Area (Z: -118 to -175)
-  else if (clampedZ <= -118 && clampedZ > -175) {
+  } else if (clampedZ <= -118 && clampedZ > -175) {
     if (routeBranch2 === 'shortcut') {
       clampedX = Math.max(-6, Math.min(6, clampedX));
-      // Shortcut Checkpoint 4 (Index 5) is at Z = -150. Gate past Z = -155 if not solved.
-      if (!checkpointAnswers[5] && clampedZ < -155) {
-        clampedZ = -155;
-      }
     } else if (routeBranch2 === 'detour') {
       clampedX = Math.max(-24, Math.min(-12, clampedX));
-      // Detour Checkpoint 2-D (Index 4) is at Z = -150. Gate past Z = -155 if not solved.
-      if (!checkpointAnswers[4] && clampedZ < -155) {
-        clampedZ = -155;
-      }
     } else {
       clampedX = Math.max(-8, Math.min(8, clampedX));
-      clampedZ = -118;
     }
-  }
-  // 6. Network District to Checkpoint 5 (Z: -175 to -180)
-  else if (clampedZ <= -175 && clampedZ > -180) {
+  } else if (clampedZ <= -175 && clampedZ > -180) {
     clampedX = Math.max(-12, Math.min(12, clampedX));
-  }
-  // Gated at Checkpoint 5 (Z = -180)
-  else if (clampedZ <= -180 && clampedZ > -190) {
+  } else if (clampedZ <= -180 && clampedZ > -190) {
     clampedX = Math.max(-8, Math.min(8, clampedX));
-    if (!checkpointAnswers[6] && clampedZ < -180) {
-      clampedZ = -180;
-    }
-  }
-  // 7. Highway 3 to Checkpoint 6 (Z: -190 to -200)
-  else if (clampedZ <= -190 && clampedZ > -200) {
+  } else if (clampedZ <= -190 && clampedZ > -200) {
     clampedX = Math.max(-12, Math.min(12, clampedX));
-  }
-  // Gated at Checkpoint 6 (Z = -200)
-  else if (clampedZ <= -200 && clampedZ > -210) {
+  } else if (clampedZ <= -200 && clampedZ > -210) {
     clampedX = Math.max(-8, Math.min(8, clampedX));
-    if (!checkpointAnswers[7] && clampedZ < -200) {
-      clampedZ = -200;
-    }
-  }
-  // 8. Coding Challenge 1 & 2 & Portal (Z: -210 to -250)
-  else {
+  } else {
     clampedX = Math.max(-14, Math.min(14, clampedX));
-
-    // Block at Coding Terminal 1 if not solved
-    if (!coding1Solved && clampedZ < -215) {
-      clampedZ = -215;
-    }
-    // Block at Coding Terminal 2 if not solved
-    if (!coding2Solved && clampedZ < -230) {
-      clampedZ = -230;
-    }
   }
 
   return { x: clampedX, z: clampedZ };
