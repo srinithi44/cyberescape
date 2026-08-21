@@ -242,7 +242,8 @@ export const MCQ_POOL: Question[] = [
   },
   {
     id: 'CN-02',
-    category: 'EASY',
+    category: 'COMPUTER_NETWORKS',
+    difficulty: 'EASY',
     title: 'HTTPS Port',
     question: 'What default port number is used by secure HTTP connections (HTTPS)?',
     options: [

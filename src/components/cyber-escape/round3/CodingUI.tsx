@@ -148,7 +148,7 @@ export function CodingUI() {
                     onChange={(e) => setOutputVal(e.target.value)}
                     disabled={isSubmitting || feedback.type === 'success'}
                     placeholder={activeChallenge.placeholder}
-                    className="flex-1 w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-[#22D3EE] focus:outline-none focus:border-[#22D3EE]/50 resize-none font-bold text-sm tracking-wide shadow-inner"
+                    className="flex-1 w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-[#22D3EE] focus:outline-none focus:border-[#22D3EE]/50 resize-none font-bold text-sm tracking-wide shadow-inner select-text"
                   />
 
                   {/* Simulated output compiler lines */}

@@ -105,10 +105,10 @@ export function CameraController() {
     } else {
       // Auto-align horizontal orientation behind player when running
       if (isMoving && !rotationRef.current.isDragging) {
-        let diff = playerRotation - rotationRef.current.theta;
+        let diff = (playerRotation + Math.PI) - rotationRef.current.theta;
         // Find shortest angular distance
         diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-        rotationRef.current.theta += diff * 0.035; // smooth catch-up
+        rotationRef.current.theta += diff * 0.05; // smooth responsive catch-up
       }
 
       const distance = 16.5;

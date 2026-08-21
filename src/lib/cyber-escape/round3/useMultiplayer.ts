@@ -57,7 +57,7 @@ export function useMultiplayer() {
       // Populating initial members in the lobby
       const members: { id: string; name: string }[] = [];
       channel.members.each((member: any) => {
-        members.push({ id: member.id, name: member.info.name });
+        members.push({ id: member.id, name: member.info?.name || 'Cadet' });
       });
       useGameStore.getState().setConnectedPlayers(members);
     });
@@ -70,17 +70,17 @@ export function useMultiplayer() {
 
     // Add new dynamic player
     channel.bind('pusher:member_added', (member: any) => {
-      console.log(`Pusher: User joined the network: ${member.info.name}`);
+      console.log(`Pusher: User joined the network: ${member.info?.name || 'Cadet'}`);
       const current = useGameStore.getState().connectedPlayers;
       useGameStore.getState().setConnectedPlayers([
         ...current.filter(m => m.id !== member.id),
-        { id: member.id, name: member.info.name }
+        { id: member.id, name: member.info?.name || 'Cadet' }
       ]);
     });
 
     // Remove user
     channel.bind('pusher:member_removed', (member: any) => {
-      console.log(`Pusher: User severed connection: ${member.info.name}`);
+      console.log(`Pusher: User severed connection: ${member.info?.name || 'Cadet'}`);
       const current = useGameStore.getState().connectedPlayers;
       useGameStore.getState().setConnectedPlayers(current.filter((m) => m.id !== member.id));
       useGameStore.getState().removeOtherPlayer(member.id);
@@ -207,10 +207,10 @@ export function useMultiplayer() {
   useEffect(() => {
     if (connectionStatus !== 'CONNECTED' || !channelRef.current) return;
 
-    // Retrieve local ID from socket channel
-    const myId = channelRef.current.members.me.id;
-
     const checkAndSendMovement = () => {
+      const myId = channelRef.current?.members?.me?.id;
+      if (!myId) return;
+
       const last = lastSentMoveRef.current;
       const posChanged = !last ||
         Math.abs(playerPosition[0] - last.position[0]) > 0.05 ||

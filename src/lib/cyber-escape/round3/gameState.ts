@@ -294,7 +294,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       gameStatus: 'playing',
       playerPosition: [0, 0.5, 0],
-      playerRotation: 0,
+      playerRotation: Math.PI,
       isMoving: false,
       currentCheckpoint: 0,
       activeQuestion: null,
@@ -342,7 +342,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       gameStatus: 'loading',
       playerPosition: [0, 0.5, 0],
-      playerRotation: 0,
+      playerRotation: Math.PI,
       isMoving: false,
       currentCheckpoint: 0,
       activeQuestion: null,

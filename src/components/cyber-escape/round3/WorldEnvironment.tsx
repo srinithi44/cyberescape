@@ -835,8 +835,6 @@ function StreetLight({ position }: { position: [number, number, number] }) {
         intensity={3.2}
         color="#cffafe"
         distance={22}
-        castShadow
-        shadow-bias={-0.0003}
       />
     </group>
   );
@@ -1064,7 +1062,7 @@ export function WorldEnvironment() {
         intensity={2.5}
         color="#93C5FD"
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
         shadow-camera-far={400}
         shadow-camera-left={-75}

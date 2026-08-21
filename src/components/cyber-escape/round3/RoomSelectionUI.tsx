@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Users, Radio, HelpCircle, ArrowRight, Compass } from 'lucide-react';
 import { useGameStore } from '@/lib/cyber-escape/round3/gameState';
@@ -21,6 +21,15 @@ export function RoomSelectionUI() {
   const [room, setRoom] = useState('');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedName = localStorage.getItem('cyber-escape-name');
+      const savedRoom = localStorage.getItem('cyber-escape-room');
+      if (savedName) setName(savedName);
+      if (savedRoom) setRoom(savedRoom);
+    }
+  }, []);
+
   if (gameStatus !== 'room_selection' && gameStatus !== 'lobby') return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,7 +46,13 @@ export function RoomSelectionUI() {
     }
 
     setError('');
-    joinRoom(room, name);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cyber-escape-name', name.trim());
+      localStorage.setItem('cyber-escape-room', room.trim().toUpperCase());
+    }
+
+    joinRoom(room.trim().toUpperCase(), name.trim());
   };
 
   const isHost = connectedPlayers.length === 0 || connectedPlayers[0]?.name === displayName;
@@ -89,7 +104,7 @@ export function RoomSelectionUI() {
                   onChange={(e) => setName(e.target.value.slice(0, 16))}
                   disabled={connectionStatus === 'CONNECTING'}
                   placeholder="Enter display name..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-[#22D3EE]/50 font-sans text-sm shadow-inner transition-all disabled:opacity-50"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-[#22D3EE]/50 font-sans text-sm shadow-inner transition-all disabled:opacity-50 select-text"
                 />
               </div>
 
@@ -104,7 +119,7 @@ export function RoomSelectionUI() {
                   onChange={(e) => setRoom(e.target.value.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 12))}
                   disabled={connectionStatus === 'CONNECTING'}
                   placeholder="e.g. CYB-4821"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-[#22D3EE]/50 font-mono text-sm tracking-wider shadow-inner transition-all disabled:opacity-50"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-[#22D3EE]/50 font-mono text-sm tracking-wider shadow-inner transition-all disabled:opacity-50 select-text"
                 />
               </div>
 

@@ -21,12 +21,12 @@ export function LoadingScreen() {
           setTimeout(() => {
             setGameStatus('playing');
             startTimer();
-          }, 300);
+          }, 150);
           return 100;
         }
-        return prev + Math.floor(Math.random() * 15 + 10);
+        return prev + Math.floor(Math.random() * 18 + 14);
       });
-    }, 120);
+    }, 55);
 
     return () => clearInterval(interval);
   }, [gameStatus, setGameStatus, startTimer]);
