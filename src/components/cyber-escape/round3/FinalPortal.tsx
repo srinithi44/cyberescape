@@ -181,14 +181,14 @@ export function FinalPortal() {
       </group>
 
       {/* ── 5. FLOATING GATEWAY TEXT OVERLAY ── */}
-      <Float speed={2.0} rotationIntensity={0} floatIntensity={0.6}>
+      <Float speed={2.5} rotationIntensity={0.1} floatIntensity={0.8}>
         <Html position={[0, 14.8, 0]} center distanceFactor={22}>
-          <div className="flex flex-col items-center gap-1 select-none text-white whitespace-nowrap font-mono font-bold">
-            <span className="text-[11px] text-cyan-400 bg-black/90 px-3 py-1 rounded border border-cyan-400/60 shadow-[0_0_15px_#22D3EE] uppercase tracking-widest animate-pulse">
+          <div className="flex flex-col items-center gap-1.5 select-none text-white whitespace-nowrap font-mono font-bold">
+            <span className="text-[11px] text-cyan-400 bg-slate-950/80 backdrop-blur-md px-4 py-1.5 rounded-xl border border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.3)] uppercase tracking-[0.2em] animate-pulse">
               QUANTUM ESCAPE GATEWAY
             </span>
-            <span className="text-[7px] text-cyan-400/90 tracking-wider">
-              STATUS: READY FOR TERMINAL ESCAPE
+            <span className="text-[7px] text-cyan-400 bg-slate-950/60 border border-cyan-500/10 px-2 py-0.5 rounded-lg tracking-wider">
+              STATUS: READY FOR TERMINAL OVERRIDE
             </span>
           </div>
         </Html>

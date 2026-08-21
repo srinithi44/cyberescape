@@ -202,21 +202,21 @@ export function QuestionTerminal({ checkpointIndex = 0 }: { checkpointIndex?: nu
       </group>
 
       {/* ── 6. FLOATING CHECKPOINT BADGE ── */}
-      <Float speed={2.2} rotationIntensity={0} floatIntensity={0.6}>
+      <Float speed={2.5} rotationIntensity={0.1} floatIntensity={0.8}>
         <Html position={[0, 5.8, 0]} center distanceFactor={20}>
-          <div className="flex flex-col items-center gap-1 select-none whitespace-nowrap font-mono font-bold">
-            <span className="text-[10px] text-cyan-400 bg-black/90 px-2 py-0.5 rounded border border-cyan-500/50 shadow-md uppercase tracking-widest">
+          <div className="flex flex-col items-center gap-1.5 select-none whitespace-nowrap font-mono font-bold">
+            <span className="text-[9px] text-cyan-400 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.25)] uppercase tracking-[0.2em]">
               CHECKPOINT 0{checkpointIndex + 1}
             </span>
-            <span className={`text-[7px] px-1.5 py-0.5 rounded border ${isSolved
+            <span className={`text-[7px] px-2 py-0.5 rounded-lg border backdrop-blur-md tracking-wider transition-all duration-300 ${isSolved
                 ? isCorrect
-                  ? 'bg-cyan-950/80 border-cyan-500/60 text-cyan-300'
-                  : 'bg-amber-950/80 border-amber-500/60 text-amber-300'
+                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                  : 'bg-amber-950/80 border-amber-500/40 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
                 : isNear
-                  ? 'bg-cyan-950/80 border-cyan-500/60 text-cyan-300 animate-pulse'
-                  : 'bg-cyan-950/50 border-cyan-900/60 text-cyan-500'
+                  ? 'bg-cyan-950/80 border-cyan-400/60 text-cyan-300 animate-pulse shadow-[0_0_12px_rgba(34,211,238,0.4)]'
+                  : 'bg-slate-950/50 border-cyan-900/30 text-cyan-600'
               }`}>
-              {isSolved ? (isCorrect ? 'ACCESS GRANTED // SHORTCUT' : 'ACCESS DENIED // DETOUR') : 'TERMINAL READY'}
+              {isSolved ? (isCorrect ? 'ACCESS GRANTED // SHORTCUT' : 'ACCESS DENIED // DETOUR') : 'TERMINAL ACTIVE'}
             </span>
           </div>
         </Html>
