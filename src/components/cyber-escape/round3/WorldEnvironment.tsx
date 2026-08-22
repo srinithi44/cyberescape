@@ -900,10 +900,41 @@ function FloatingParticleField() {
   );
 }
 
+// ── LEVEL ENTRANCE ARCHWAY (Separated to prevent WorldEnvironment re-renders) ──
+function LevelEntranceArch() {
+  const playerZ = useGameStore((state) => state.playerPosition[2]);
+  return (
+    <group position={[0, 0, 6]}>
+      <mesh position={[-12.2, 6.2, 0]} castShadow>
+        <boxGeometry args={[1.5, 12.4, 1.5]} />
+        <meshStandardMaterial color="#0E5AA7" metalness={0.9} roughness={0.2} />
+      </mesh>
+      <mesh position={[12.2, 6.2, 0]} castShadow>
+        <boxGeometry args={[1.5, 12.4, 1.5]} />
+        <meshStandardMaterial color="#0E5AA7" metalness={0.9} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 12.5, 0]} castShadow>
+        <boxGeometry args={[25.9, 1.6, 1.6]} />
+        <meshStandardMaterial color="#071A2F" metalness={0.8} />
+      </mesh>
+      <mesh position={[0, 10.4, 0]}>
+        <planeGeometry args={[11, 2.0]} />
+        <meshBasicMaterial color="#22D3EE" />
+      </mesh>
+      {playerZ > -5.0 && (
+        <Html position={[0, 10.4, 0.06]} center distanceFactor={22} zIndexRange={[0, 10]}>
+          <div className="flex flex-col items-center select-none text-white whitespace-nowrap">
+            <span className="text-[14px] font-mono font-black tracking-widest text-black">CYBER ESCAPE</span>
+            <span className="text-[7px] font-mono font-bold text-cyan-950 uppercase tracking-wider">ROUND 3 // QUANTUM INTERLINK</span>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
 // ── MAIN ENVIRONMENT SCENE ──
 export function WorldEnvironment() {
-  const playerZ = useGameStore((state) => state.playerPosition[2]);
-  
   // Detailed landscape terrain with valleys, mountain ridges, and river channels
   const terrainGeometry = useMemo(() => {
     const geo = new THREE.PlaneGeometry(380, 480, 100, 100);
@@ -1220,32 +1251,7 @@ export function WorldEnvironment() {
       <FloatingMapPin position={[0, 0.2, -240]} label="ESCAPE PORTAL" icon={Award} color="bg-amber-500" borderColor="border-amber-300" />
 
       {/* ── 12. LEVEL ARCHWAY ── */}
-      <group position={[0, 0, 6]}>
-        <mesh position={[-12.2, 6.2, 0]} castShadow>
-          <boxGeometry args={[1.5, 12.4, 1.5]} />
-          <meshStandardMaterial color="#0E5AA7" metalness={0.9} roughness={0.2} />
-        </mesh>
-        <mesh position={[12.2, 6.2, 0]} castShadow>
-          <boxGeometry args={[1.5, 12.4, 1.5]} />
-          <meshStandardMaterial color="#0E5AA7" metalness={0.9} roughness={0.2} />
-        </mesh>
-        <mesh position={[0, 12.5, 0]} castShadow>
-          <boxGeometry args={[25.9, 1.6, 1.6]} />
-          <meshStandardMaterial color="#071A2F" metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 10.4, 0]}>
-          <planeGeometry args={[11, 2.0]} />
-          <meshBasicMaterial color="#22D3EE" />
-        </mesh>
-        {playerZ > -5.0 && (
-          <Html position={[0, 10.4, 0.06]} center distanceFactor={22} zIndexRange={[0, 10]}>
-            <div className="flex flex-col items-center select-none text-white whitespace-nowrap">
-              <span className="text-[14px] font-mono font-black tracking-widest text-black">CYBER ESCAPE</span>
-              <span className="text-[7px] font-mono font-bold text-cyan-950 uppercase tracking-wider">ROUND 3 // QUANTUM INTERLINK</span>
-            </div>
-          </Html>
-        )}
-      </group>
+      <LevelEntranceArch />
     </group>
   );
 }

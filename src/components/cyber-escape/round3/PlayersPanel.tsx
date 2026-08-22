@@ -79,19 +79,21 @@ export function PlayersPanel({ onClose }: PlayersPanelProps) {
                   ONLINE CLIENTS ({connectedPlayers.length})
                 </span>
                 
-                <div className="space-y-2">
+                <div className={`grid gap-2 max-h-[35vh] overflow-y-auto pr-1 ${
+                  connectedPlayers.length > 6 ? 'grid-cols-2' : 'grid-cols-1'
+                }`}>
                   {connectedPlayers.map((p, idx) => {
                     const isMe = p.name === displayName;
                     return (
                       <div
                         key={p.id}
-                        className={`px-4 py-3 rounded-xl border ${
+                        className={`px-4 py-2.5 rounded-xl border ${
                           isMe ? 'border-[#22D3EE]/30 bg-cyan-950/20' : 'border-slate-800 bg-slate-900/40'
                         } flex items-center justify-between`}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 overflow-hidden">
                           <div
-                            className={`w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold ${
+                            className={`w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center text-[9px] font-bold ${
                               isMe
                                 ? 'bg-cyan-950 border border-cyan-500 text-[#22D3EE]'
                                 : 'bg-slate-850 border border-slate-700 text-slate-400'
@@ -99,14 +101,14 @@ export function PlayersPanel({ onClose }: PlayersPanelProps) {
                           >
                             P{idx + 1}
                           </div>
-                          <span className="text-xs font-mono font-bold text-white">{p.name}</span>
+                          <span className="text-xs font-mono font-bold text-white truncate max-w-[80px] sm:max-w-[120px]">{p.name}</span>
                         </div>
                         {isMe ? (
-                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold">
-                            YOU (LOKI)
+                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-cyan-500 text-cyan-400 uppercase font-bold flex-shrink-0">
+                            YOU
                           </span>
                         ) : (
-                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-slate-700 text-slate-500 uppercase font-bold">
+                          <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-[#071A2F]/90 border border-slate-700 text-slate-500 uppercase font-bold flex-shrink-0">
                             CADET
                           </span>
                         )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ShieldAlert, Terminal, Cpu, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { useGameStore } from '@/lib/cyber-escape/round3/gameState';
@@ -15,12 +15,19 @@ export function QuestionUI() {
   const soundEnabled = useGameStore((state) => state.soundEnabled);
 
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    setFeedback(null);
+    setSelectedIdx(null);
+  }, [activeQuestion]);
 
   if (!activeQuestion) return null;
 
   const handleChoice = (optionIdx: number) => {
     if (feedback) return; // Prevent double submit
 
+    setSelectedIdx(optionIdx);
     const result = submitAnswer(currentCheckpoint, optionIdx);
     const store = useGameStore.getState();
 
@@ -124,16 +131,16 @@ export function QuestionUI() {
                 onClick={() => handleChoice(idx)}
                 disabled={!!feedback}
                 className={`group relative p-4 rounded-2xl border transition-all text-left text-xs sm:text-sm font-mono cursor-pointer active:scale-[0.98] disabled:opacity-70 flex items-center gap-3 shadow-[0_4px_12px_rgba(0,0,0,0.2)] ${feedback
-                    ? idx === activeQuestion.correctAnswer
-                      ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3),inset_0_0_10px_rgba(34,211,238,0.15)]'
+                    ? idx === selectedIdx
+                      ? 'bg-amber-950/60 border-amber-500 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.3),inset_0_0_10px_rgba(245,158,11,0.15)]'
                       : 'bg-black/10 border-cyan-950/30 text-slate-500'
                     : 'bg-cyan-950/10 border-cyan-900/30 hover:border-cyan-400/80 hover:bg-cyan-900/20 text-slate-200 hover:text-white hover:shadow-[0_0_15px_rgba(34,211,238,0.15)]'
                   }`}
               >
                 {/* Option Identifier Badge */}
                 <span className={`flex-shrink-0 w-6 h-6 rounded-lg font-bold text-xs flex items-center justify-center transition-all ${feedback
-                    ? idx === activeQuestion.correctAnswer
-                      ? 'bg-cyan-800/80 border-cyan-400 text-cyan-300'
+                    ? idx === selectedIdx
+                      ? 'bg-amber-900/80 border-amber-500 text-amber-350'
                       : 'bg-slate-950 text-slate-700 border-slate-900'
                     : 'bg-cyan-950/80 border border-cyan-500/20 text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black group-hover:shadow-[0_0_8px_rgba(34,211,238,0.6)]'
                   }`}>

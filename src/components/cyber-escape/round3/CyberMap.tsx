@@ -7,21 +7,29 @@ import { useGameStore } from '@/lib/cyber-escape/round3/gameState';
 export function CyberMap() {
   const isMapOpen = useGameStore((state) => state.isMapOpen);
   const setIsMapOpen = useGameStore((state) => state.setIsMapOpen);
+
+  return (
+    <AnimatePresence>
+      {isMapOpen && (
+        <CyberMapContent onClose={() => setIsMapOpen(false)} />
+      )}
+    </AnimatePresence>
+  );
+}
+
+function CyberMapContent({ onClose }: { onClose: () => void }) {
   const playerPos = useGameStore((state) => state.playerPosition);
   
   const route0 = useGameStore((state) => state.routeBranches[0] || 'none');
   const route2 = useGameStore((state) => state.routeBranches[2] || 'none');
   const checkpointAnswers = useGameStore((state) => state.checkpointAnswers);
 
-  if (!isMapOpen) return null;
-
   // Convert player 3D coordinates (X: -36 to 36, Z: 5 to -250) to tactical map percentage (X: 10% to 90%, Y: 92% to 8%)
   const playerXPercent = Math.min(95, Math.max(5, 50 + (playerPos[0] / 36) * 35));
   const playerYPercent = Math.min(95, Math.max(5, 90 - ((5 - playerPos[2]) / 255) * 82));
 
   return (
-    <AnimatePresence>
-      <div className="fixed right-4 top-24 bottom-24 w-80 z-30 pointer-events-none">
+    <div className="fixed right-4 top-24 bottom-24 w-80 z-30 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, x: 50, scale: 0.95 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -51,7 +59,7 @@ export function CyberMap() {
               </div>
             </div>
             <button
-              onClick={() => setIsMapOpen(false)}
+              onClick={onClose}
               className="p-1.5 rounded-lg bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 hover:text-white hover:bg-cyan-950 transition-colors cursor-pointer active:scale-95"
             >
               <X className="w-4 h-4" />
@@ -329,6 +337,5 @@ export function CyberMap() {
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
   );
 }

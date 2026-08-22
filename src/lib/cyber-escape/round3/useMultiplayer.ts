@@ -9,14 +9,10 @@ export function useMultiplayer() {
   const roomCode = useGameStore((state) => state.roomCode);
   const displayName = useGameStore((state) => state.displayName);
   const connectionStatus = useGameStore((state) => state.connectionStatus);
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const playerRotation = useGameStore((state) => state.playerRotation);
-  const isMoving = useGameStore((state) => state.isMoving);
 
   const pusherRef = useRef<Pusher | null>(null);
   const channelRef = useRef<PresenceChannel | null>(null);
   const lastSentMoveRef = useRef<{ position: [number, number, number]; rotation: number; isMoving: boolean } | null>(null);
-  const moveThrottleRef = useRef<number | null>(null);
 
   // 1. Pusher Connection Management
   useEffect(() => {
@@ -118,64 +114,7 @@ export function useMultiplayer() {
       useGameStore.getState().initGame();
     });
 
-    // Checkpoint MCQ Solved sync
-    channel.bind('client-terminal-solved', (data: { checkpointIdx: number; branch: RouteBranch; optionIdx: number; isCorrect: boolean }) => {
-      console.log(`Pusher: Checkpoint ${data.checkpointIdx} resolved by peer.`);
-      useGameStore.setState((state) => ({
-        checkpointAnswers: {
-          ...state.checkpointAnswers,
-          [data.checkpointIdx]: { selectedIndex: data.optionIdx, isCorrect: data.isCorrect },
-        },
-        routeBranches: {
-          ...state.routeBranches,
-          [data.checkpointIdx]: data.branch,
-        },
-        // Automatically close the question modal if it was open for this checkpoint
-        gameStatus: state.gameStatus === 'question' && state.currentCheckpoint === data.checkpointIdx ? 'playing' : state.gameStatus,
-        activeQuestion: state.gameStatus === 'question' && state.currentCheckpoint === data.checkpointIdx ? null : state.activeQuestion,
-      }));
-    });
 
-    // Coding Challenge Solved sync
-    channel.bind('client-coding-solved', (data: { challengeId: string }) => {
-      console.log(`Pusher: Coding Challenge ${data.challengeId} accepted by peer.`);
-      useGameStore.setState((state) => ({
-        codingSolved: {
-          ...state.codingSolved,
-          [data.challengeId]: true,
-        },
-        // Automatically close coding modal if it was open for this challenge
-        gameStatus: state.gameStatus === 'coding' ? 'playing' : state.gameStatus,
-        activeCodingChallenge: state.gameStatus === 'coding' ? null : state.activeCodingChallenge,
-      }));
-    });
-
-    // Listen for peer engaging MCQ terminal
-    channel.bind('client-terminal-engaged', (data: { checkpointIdx: number }) => {
-      console.log(`Pusher: Peer engaged terminal: CP ${data.checkpointIdx}`);
-      const store = useGameStore.getState();
-      if (store.gameStatus === 'playing') {
-        useGameStore.setState({
-          currentCheckpoint: data.checkpointIdx,
-          activeQuestion: store.mcqQueue[data.checkpointIdx] || null,
-          gameStatus: 'question',
-        });
-      }
-    });
-
-    // Listen for peer engaging coding terminal
-    channel.bind('client-coding-engaged', (data: { challengeIndex: number }) => {
-      console.log(`Pusher: Peer engaged coding terminal: Challenge ${data.challengeIndex}`);
-      const store = useGameStore.getState();
-      if (store.gameStatus === 'playing') {
-        const challenge = CODING_CHALLENGES[data.challengeIndex];
-        useGameStore.setState({
-          currentCheckpoint: data.challengeIndex === 0 ? 8 : 9,
-          activeCodingChallenge: challenge,
-          gameStatus: 'coding',
-        });
-      }
-    });
 
     // Synchronize peer completions on the leaderboard
     channel.bind('client-leaderboard-entry', (data: { entry: LeaderboardEntry }) => {
@@ -205,50 +144,49 @@ export function useMultiplayer() {
 
   // 2. Transmit coordinates (Throttled loop)
   useEffect(() => {
-    if (connectionStatus !== 'CONNECTED' || !channelRef.current) return;
+    if (connectionStatus !== 'CONNECTED') return;
 
     const checkAndSendMovement = () => {
-      const myId = channelRef.current?.members?.me?.id;
+      if (!channelRef.current) return;
+      const myId = channelRef.current.members?.me?.id;
       if (!myId) return;
+
+      const store = useGameStore.getState();
+      const currentPos = store.playerPosition;
+      const currentRot = store.playerRotation;
+      const currentMoving = store.isMoving;
 
       const last = lastSentMoveRef.current;
       const posChanged = !last ||
-        Math.abs(playerPosition[0] - last.position[0]) > 0.05 ||
-        Math.abs(playerPosition[2] - last.position[2]) > 0.05;
-      const rotChanged = !last || Math.abs(playerRotation - last.rotation) > 0.05;
-      const motionChanged = !last || isMoving !== last.isMoving;
+        Math.abs(currentPos[0] - last.position[0]) > 0.05 ||
+        Math.abs(currentPos[2] - last.position[2]) > 0.05;
+      const rotChanged = !last || Math.abs(currentRot - last.rotation) > 0.05;
+      const motionChanged = !last || currentMoving !== last.isMoving;
 
       if (posChanged || rotChanged || motionChanged) {
-        channelRef.current?.trigger('client-player-move', {
+        channelRef.current.trigger('client-player-move', {
           id: myId,
           name: displayName,
-          position: playerPosition,
-          rotation: playerRotation,
-          isMoving,
+          position: currentPos,
+          rotation: currentRot,
+          isMoving: currentMoving,
         });
-        lastSentMoveRef.current = { position: playerPosition, rotation: playerRotation, isMoving };
+        lastSentMoveRef.current = { position: currentPos, rotation: currentRot, isMoving: currentMoving };
       }
     };
 
-    if (moveThrottleRef.current === null) {
-      checkAndSendMovement();
-      moveThrottleRef.current = window.setInterval(checkAndSendMovement, 60);
-    }
+    // Low-overhead stable interval setup at 80ms (approx 12Hz, ideal for movement replication)
+    const intervalId = window.setInterval(checkAndSendMovement, 80);
 
     return () => {
-      if (moveThrottleRef.current !== null) {
-        clearInterval(moveThrottleRef.current);
-        moveThrottleRef.current = null;
-      }
+      window.clearInterval(intervalId);
     };
-  }, [playerPosition, playerRotation, isMoving, connectionStatus, displayName]);
+  }, [connectionStatus, displayName]);
 
   // 3. Game State Event Broadcasting
   useEffect(() => {
     if (connectionStatus !== 'CONNECTED' || !channelRef.current) return;
 
-    let prevBranches = { ...useGameStore.getState().routeBranches };
-    let prevCodingSolved = { ...useGameStore.getState().codingSolved };
     let prevStatus = useGameStore.getState().gameStatus;
     let prevLeaderboardLength = useGameStore.getState().leaderboard.length;
 
@@ -259,48 +197,7 @@ export function useMultiplayer() {
         channelRef.current?.trigger('client-game-started', {});
       }
 
-      // 3.1.1 Engage MCQ Terminal
-      if (state.gameStatus === 'question' && prevStatus === 'playing') {
-        console.log('Pusher: Dispatching terminal engaged sequence...');
-        channelRef.current?.trigger('client-terminal-engaged', {
-          checkpointIdx: state.currentCheckpoint,
-        });
-      }
-
-      // 3.1.2 Engage Coding Terminal
-      if (state.gameStatus === 'coding' && prevStatus === 'playing') {
-        console.log('Pusher: Dispatching coding engaged sequence...');
-        channelRef.current?.trigger('client-coding-engaged', {
-          challengeIndex: state.currentCheckpoint === 8 ? 0 : 1,
-        });
-      }
-
       prevStatus = state.gameStatus;
-
-      // 3.2 MCQ Terminal Finished
-      for (const idxStr of Object.keys(state.routeBranches)) {
-        const idx = parseInt(idxStr);
-        if (state.routeBranches[idx] !== 'none' && prevBranches[idx] === 'none') {
-          const ans = state.checkpointAnswers[idx];
-          channelRef.current?.trigger('client-terminal-solved', {
-            checkpointIdx: idx,
-            branch: state.routeBranches[idx],
-            optionIdx: ans?.selectedIndex ?? 0,
-            isCorrect: ans?.isCorrect ?? true,
-          });
-        }
-      }
-      prevBranches = { ...state.routeBranches };
-
-      // 3.3 Coding Terminal Finished
-      for (const cid of Object.keys(state.codingSolved)) {
-        if (state.codingSolved[cid] === true && prevCodingSolved[cid] !== true) {
-          channelRef.current?.trigger('client-coding-solved', {
-            challengeId: cid,
-          });
-        }
-      }
-      prevCodingSolved = { ...state.codingSolved };
 
       // 3.4 Leaderboard Entry Broadcast
       if (state.leaderboard.length > prevLeaderboardLength) {
